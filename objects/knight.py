@@ -43,6 +43,9 @@ class Knight(Object):
         self.animState = AnimStateEnum.IDLE
         self.spriteChangeWaitTimer = ANIMSPEED
         self.currentSprite = 0
+        self.maxHealth = 5
+        self.currentHealth = 5
+        self.damageCooldown = 0
         self.initialiseSprites()
     
     def getCenter(self) -> pygame.Vector2:
@@ -67,6 +70,13 @@ class Knight(Object):
         self.setFacingDirection(movementVector)
         self.setAnimState(movementVector)
         self.setSprite(delta)
+        
+    def takeDamage(self, damageAmount: int) -> None:
+        if self.damageCooldown > 0:
+            return
+        self.currentHealth -= damageAmount
+        if self.currentHealth < 0:
+            self.currentHealth = 0
     
     def setAnimState(self, movementVector):
         if movementVector == pygame.Vector2(0, 0):

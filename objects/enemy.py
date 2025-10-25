@@ -7,10 +7,12 @@ from generation.map import Map
 
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
 ATTACKSPEED = 550 ## Wait time in ms 
+PROJECTILE_WARN_TIME = 400
+FLASH_FREQUENCY = 1
 
-SLIME_AGGRESSION_RADIUS = 250
-SLIME_PEACE_RADIUS = 450
-SLIME_ATTACK_RADIUS = 75
+SLIME_AGGRESSION_RADIUS = 200
+SLIME_PEACE_RADIUS = 250
+SLIME_ATTACK_RADIUS = 60
 
 class EnemyStateEnum(Enum):
     IDLE = 1
@@ -37,6 +39,7 @@ class Enemy(Object):
         self.attackWaitTimer = ATTACKSPEED
         self.pos = pygame.Vector2(0, 0)
         self.spritesheet = None
+        self.commitedToAttack = False
     
     def passPlayerReference(self, player) -> None:
         self.player = player
@@ -153,7 +156,7 @@ class Slime(Enemy):
         elif self.state == EnemyStateEnum.ATTACK:
             self.actUponStateAttack(delta)
     
-    def actUponStatePursuit(self, delta, map):
+    def actUponStatePursuit(self, delta, map: Map):
         toPlayerVector = (self.player.getCenter() - self.getCenter())
         if toPlayerVector == pygame.Vector2(0, 0):
             directionToPlayer = pygame.Vector2(0, 0)
@@ -167,11 +170,18 @@ class Slime(Enemy):
         if self.attackWaitTimer <= 0:
             self.attackWaitTimer = ATTACKSPEED
             attackProjectile = SlimeAttackSlash(self.display, self.targetCoord)
+            attackProjectile.passPlayerReference(self.player)
             self.projectiles.append(attackProjectile)
-            self.lockTarget()
+            self.commitedToAttack = False
+            distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
+            if distanceToPlayer <= SLIME_ATTACK_RADIUS:
+                self.lockTarget()
     
     def lockTarget(self):
         self.targetCoord = self.player.getCenter()
+        warnProjectile = SlimeAttackWarn(self.display, self.targetCoord)
+        self.projectiles.append(warnProjectile)
+        self.commitedToAttack = True
 
     def changeState(self):
         distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
@@ -185,7 +195,7 @@ class Slime(Enemy):
                 self.state = EnemyStateEnum.ATTACK
                 self.attackWaitTimer = ATTACKSPEED
                 self.lockTarget()
-        elif self.state == EnemyStateEnum.ATTACK:
+        elif self.state == EnemyStateEnum.ATTACK and not self.commitedToAttack:
             if distanceToPlayer > SLIME_ATTACK_RADIUS:
                 self.state = EnemyStateEnum.PURSUIT
 
@@ -204,6 +214,7 @@ class SlimeAttackSlash(Projectile):
         super().__init__()
         self.size = (24, 32)
         self.hitboxSize = (24, 32)
+        self.canDoDamage = True
 
         self.display = display
         self.sprite = pygame.image.load("Assets\\TempAttackAnim.png").convert_alpha()
@@ -216,7 +227,40 @@ class SlimeAttackSlash(Projectile):
     
     def update(self, delta, map: Map, objects: list[Object]):
         self.lifetime -= delta
+        if self.hitbox.colliderect(self.player.hitbox) and self.canDoDamage:
+            self.player.takeDamage(1)
+            self.canDoDamage = False
+
+    def passPlayerReference(self, player) -> None:
+        self.player = player
     
     def draw(self, display: pygame.Surface) -> None:
         pygame.draw.rect(display, (0, 255, 255), self.hitbox)
+        self.display.blit(self.sprite, self.pos)
+
+class SlimeAttackWarn(Projectile):
+    def __init__(self, display, playerCenter):
+        super().__init__()
+        self.size = (24, 32)
+        self.hitboxSize = (24, 32)
+        self.canDoDamage = True
+
+        self.display = display
+        self.sprite = pygame.image.load("Assets\\AttackWarn.png").convert_alpha()
+        self.sprite = pygame.transform.scale(self.sprite, self.size)
+        self.hitbox = pygame.Rect(0, 0, self.hitboxSize[0], self.hitboxSize[1])
+        self.pos = playerCenter - pygame.Vector2(self.size[0], self.size[1]) / 2
+        self.lifetime = 400
+        self.visible = True
+
+        self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
+        self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
+    
+    def update(self, delta, map: Map, objects: list[Object]):
+        self.lifetime -= delta
+        self.visible = (int)((self.lifetime * FLASH_FREQUENCY) / 100) % 2 == 0
+        
+    def draw(self, display: pygame.Surface) -> None:
+        if not self.visible:
+            return
         self.display.blit(self.sprite, self.pos)
