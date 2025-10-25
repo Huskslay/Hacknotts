@@ -4,11 +4,11 @@ pygame.init()
 delta = 0
 display = pygame.display.set_mode((1280,720))
 
-import Knight
+import knight
 
 clock = pygame.time.Clock()
 
-knight = Knight.Knight(display)
+knight = knight.Knight(display)
 
 while True:
     for event in pygame.event.get():
