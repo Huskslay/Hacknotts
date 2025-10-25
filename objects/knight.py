@@ -11,7 +11,7 @@ class Knight(Object):
         self.hitbox_size = (24, 24)
 
         self.display = display
-        self.spritesheet = pygame.image.load("Assets\\Spritesheet_with_Shadows.png").convert_alpha()
+        self.spritesheet = pygame.image.load("Assets\\KnightSpritesheet.png").convert_alpha()
         self.knightSprite = self.spritesheet.subsurface(pygame.Rect(0, 0, 48, 48))
         self.knightSprite = pygame.transform.scale(self.knightSprite, self.size)
         self.hitbox = pygame.Rect(0, 0, self.hitbox_size[0], self.hitbox_size[1])
