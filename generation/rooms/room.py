@@ -58,25 +58,25 @@ class Room:
 
     def generate_collision(self, layout: list[list[list[TileEnum]]]) -> None:
         layout0 = layout[0]
-        self.rects: list[pygame.Rect] = []
+        self.collision_rects: list[pygame.Rect] = []
         for x in range(len(layout0[0])):
             for y in range(len(layout0)):
                 if self.is_non_empty(layout0, x, y) and self.is_adjacent_to_non_empty(layout0, x, y):
-                    self.rects.append(
+                    self.collision_rects.append(
                         pygame.Rect(x * TILE_SCALE, y * TILE_SCALE, TILE_SCALE, TILE_SCALE)
                     )
     
     def is_adjacent_to_non_empty(self, layout0: list[list[TileEnum]], x, y) -> bool:
-        return (x > 0 and self.is_non_empty(layout0, x - 1, y)) or \
-               (x < len(layout0[0]) - 1 and self.is_non_empty(layout0, x + 1, y)) or \
-               (y > 0 and self.is_non_empty(layout0, x, y - 1)) or \
-               (y < len(layout0) - 1 and self.is_non_empty(layout0, x, y + 1))
+        return (x > 0 and not self.is_non_empty(layout0, x - 1, y)) or \
+               (x < len(layout0[0]) - 1 and not self.is_non_empty(layout0, x + 1, y)) or \
+               (y > 0 and not self.is_non_empty(layout0, x, y - 1)) or \
+               (y < len(layout0) - 1 and not self.is_non_empty(layout0, x, y + 1))
     def is_non_empty(self, layout0: list[list[TileEnum]], x, y) -> bool:
         return layout0[y][x] == TileEnum.EMPTY and (x, y) not in self.transition_layer.tiles
 
     def is_colliding(self, hitbox : pygame.Rect) -> bool:
-        for i in range(len(self.rects)):
-            if self.rects[i].colliderect(hitbox): return True
+        for i in range(len(self.collision_rects)):
+            if self.collision_rects[i].colliderect(hitbox): return True
         return False
 
     def make_layout(self, tilemaps: Tilemaps) -> list[list[list[TileEnum]]]:
@@ -89,6 +89,8 @@ class Room:
     def draw(self, display: pygame.Surface) -> None:
         for i in range(len(self.layers)):
             self.layers[i].draw(display)
+        # for i in range(len(self.collision_rects)):
+        #     pygame.draw.rect(display, (255, 0, 255), self.collision_rects[i])
 
 
 class Layer:
