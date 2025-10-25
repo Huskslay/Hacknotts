@@ -3,6 +3,8 @@ BG_SCALE = 2
 TILE_SCALE = 32 * BG_SCALE
 
 ROOM_SIZE = (10, 10)
+CHEST_ROOMS = 9
+TRY_SPAWN_CHESTS = 3
 
 from enum import Enum
 

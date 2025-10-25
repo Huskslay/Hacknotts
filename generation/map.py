@@ -1,15 +1,25 @@
 import pygame
+from random import randint
 
 from generation.rooms.start_room import Room, StartRoom
 from generation.rooms.combat_room import CombatRoom
+from generation.rooms.chest_room import ChestRoom
 from generation.tilemap import Tilemaps
 
-from variables import ROOM_SIZE, TransitionDirEnum, TILE_SCALE
+from variables import ROOM_SIZE, TransitionDirEnum, TILE_SCALE, CHEST_ROOMS
 
 
 class Map:
     def __init__(self, tilemaps: Tilemaps) -> None:  
         self.rooms: list[list[Room]] = []
+
+        chest_rooms: list[tuple[int, int]] = []
+        while len(chest_rooms) < CHEST_ROOMS:
+            pos = (randint(0, ROOM_SIZE[0]), randint(0, ROOM_SIZE[1]))
+            if pos[0] == ROOM_SIZE[1] // 2 and pos[1] == ROOM_SIZE[0] // 2 or \
+                pos in self.rooms: continue 
+            chest_rooms.append(pos)
+
 
         for y in range(ROOM_SIZE[1]):
             self.rooms.append([])
@@ -19,7 +29,12 @@ class Map:
                 if x == 0: disable_transitions.append(TransitionDirEnum.UP)
                 if y == ROOM_SIZE[1] - 1: disable_transitions.append(TransitionDirEnum.RIGHT)
                 if y == 0: disable_transitions.append(TransitionDirEnum.LEFT)
-                self.rooms[-1].append(CombatRoom(tilemaps, disable_transitions))
+
+                if (x, y) in chest_rooms: 
+                    # if TransitionDirEnum.UP not in disable_transitions:
+                    #     disable_transitions.append(TransitionDirEnum.UP)
+                    self.rooms[-1].append(ChestRoom(tilemaps, disable_transitions))
+                else: self.rooms[-1].append(CombatRoom(tilemaps, disable_transitions))
 
         self.rooms[ROOM_SIZE[1] // 2][ROOM_SIZE[0] // 2] = StartRoom(tilemaps, [])
         self.room = (ROOM_SIZE[1] // 2, ROOM_SIZE[0] // 2)
