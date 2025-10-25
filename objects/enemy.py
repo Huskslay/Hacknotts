@@ -119,6 +119,7 @@ class Slime(Enemy):
         self.size = (32, 32)
         self.hitboxSize = (30, 30)
         self.hitbox = pygame.Rect(1, 1, self.hitboxSize[0], self.hitboxSize[1])
+        self.move_to_force(pos.x, pos.y)
         self.initialiseSprites("Assets\\Slimesheet.png", XSPRITES, YSPRITES, self.spriteSize)
     
     def initialiseSprites(self, spritesheetPath, xSprites, ySprites, spriteSize) -> None:
