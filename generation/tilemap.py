@@ -13,7 +13,7 @@ class Tilemap:
         self.trs: list[int] = []
         self.bls: list[int] = []
         self.brs: list[int] = []
-     
+        
         for x in range(len(tiles[0])):
             for y in range(len(tiles)):
                 match (tiles[y][x]):
