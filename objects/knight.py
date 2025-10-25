@@ -1,12 +1,15 @@
 import pygame
 from enum import Enum
 from objects.object import Object
+from objects.enemy import Enemy
 from generation.map import Map
 
 ## pee pee poo poo
 
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
 MOVEMENT_SPEED = 0.05
+ATTACK_DURATION = 300 
+MOVEMENT_SLOW_WHEN_ATTACKING = 0
 
 FIRST_FRAME_DOWN_IDLE = 0
 FIRST_FRAME_LEFT_IDLE = 18
@@ -16,11 +19,16 @@ FIRST_FRAME_DOWN_WALK = 24
 FIRST_FRAME_LEFT_WALK = 42
 FIRST_FRAME_RIGHT_WALK = 36
 FIRST_FRAME_UP_WALK = 30
+FIRST_FRAME_DOWN_ATTACK = 96
+FIRST_FRAME_RIGHT_ATTACK = 108
+FIRST_FRAME_LEFT_ATTACK = 114
+FIRST_FRAME_UP_ATTACK = 102
 IDLE_FRAMES = 6
 
 class AnimStateEnum(Enum):
     IDLE = 1
     WALK = 2
+    ATTACK = 3
 
 class DirectionEnum(Enum):
     DOWN = 1
@@ -37,7 +45,8 @@ class Knight(Object):
 
         self.display = display
         self.spritesheet = pygame.image.load("Assets\\KnightSpritesheet.png").convert_alpha()
-        self.hitbox = pygame.Rect(0, 0, self.hitboxSize[0], self.hitboxSize[1])
+        self.hitbox = pygame.Rect(4, 4, self.hitboxSize[0], self.hitboxSize[1])
+        self.attackHitboxTemplate = pygame.Rect(0, 0, self.spriteSize[0], self.spriteSize[1])
         self.pos = pygame.Vector2(0, 0)
         self.directionFacing = DirectionEnum.DOWN
         self.animState = AnimStateEnum.IDLE
@@ -46,6 +55,10 @@ class Knight(Object):
         self.maxHealth = 5
         self.currentHealth = 5
         self.damageCooldown = 0
+        self.attacking = False
+        self.attackTimer = 0
+        self.spawnedAttackHitboxInCurrentAttack = False
+        self.attackHitboxRect = None
         self.initialiseSprites()
     
     def getCenter(self) -> pygame.Vector2:
@@ -64,12 +77,51 @@ class Knight(Object):
             movementVector += pygame.Vector2(0, 1)
         if keys[pygame.K_d]:
             movementVector += pygame.Vector2(1, 0)
+        if keys[pygame.K_SPACE]:
+            self.startAttackSequence()
         if movementVector.length() != 0:
             movementVector = movementVector.normalize() * MOVEMENT_SPEED * delta * 10
+        if self.attacking:
+            movementVector = movementVector * MOVEMENT_SLOW_WHEN_ATTACKING
         self.move_by(movementVector.x, movementVector.y, map)
+        self.handleAttackState(delta, objects)
         self.setFacingDirection(movementVector)
         self.setAnimState(movementVector)
         self.setSprite(delta)
+
+    def startAttackSequence(self):
+        if not self.attacking:
+            self.attackTimer = ATTACK_DURATION
+            self.attacking = True
+    
+    def handleAttackState(self, delta, objects):
+        self.attackTimer -= delta
+        if self.attackTimer <= 0:
+            self.attacking = False
+            self.spawnedAttackHitboxInCurrentAttack = False
+            self.attackHitboxRect = None
+        if self.attacking and not self.spawnedAttackHitboxInCurrentAttack and self.attackTimer <= ATTACK_DURATION / 2:
+            self.spawnedAttackHitboxInCurrentAttack = True
+            self.setAttackHitbox()
+        if self.attackHitboxRect != None:
+            for object in objects:
+                if isinstance(object, Enemy):
+                    pass # hit logic
+
+    def setAttackHitbox(self):
+        self.attackHitboxRect = self.attackHitboxTemplate.copy()
+        match self.directionFacing:
+            case DirectionEnum.UP:
+                self.attackHitboxRect.move_ip(0, -self.attackHitboxTemplate.height)
+                self.attackHitboxRect.size = (self.attackHitboxRect.width * 2, self.attackHitboxRect.height)
+            case DirectionEnum.DOWN:
+                self.attackHitboxRect.move_ip(0, self.attackHitboxTemplate.height)
+                self.attackHitboxRect.size = (self.attackHitboxRect.width * 2, self.attackHitboxRect.height)
+            case DirectionEnum.LEFT:
+                self.attackHitboxRect.move_ip(-self.attackHitboxTemplate.width, 0)
+            case DirectionEnum.RIGHT:
+                self.attackHitboxRect.move_ip(self.attackHitboxTemplate.width, 0)
+        
         
     def takeDamage(self, damageAmount: int) -> None:
         if self.damageCooldown > 0:
@@ -79,6 +131,9 @@ class Knight(Object):
             self.currentHealth = 0
     
     def setAnimState(self, movementVector):
+        if self.attacking:
+            self.animState = AnimStateEnum.ATTACK
+            return
         if movementVector == pygame.Vector2(0, 0):
             self.animState = AnimStateEnum.IDLE
         else:
@@ -132,6 +187,15 @@ class Knight(Object):
                 self.setSpriteGivenDirection(FIRST_FRAME_LEFT_WALK, IDLE_FRAMES)
             elif self.directionFacing == DirectionEnum.RIGHT:
                 self.setSpriteGivenDirection(FIRST_FRAME_RIGHT_WALK, IDLE_FRAMES)
+        elif self.animState == AnimStateEnum.ATTACK:
+            if self.directionFacing == DirectionEnum.DOWN:
+                self.setAttackSprite(FIRST_FRAME_DOWN_ATTACK, IDLE_FRAMES)
+            elif self.directionFacing == DirectionEnum.UP:
+                self.setAttackSprite(FIRST_FRAME_UP_ATTACK, IDLE_FRAMES)
+            elif self.directionFacing == DirectionEnum.LEFT:
+                self.setAttackSprite(FIRST_FRAME_LEFT_ATTACK, IDLE_FRAMES)
+            elif self.directionFacing == DirectionEnum.RIGHT:
+                self.setAttackSprite(FIRST_FRAME_RIGHT_ATTACK, IDLE_FRAMES)
         self.sprite = self.spriteList[self.currentSprite]
     
     def setSpriteGivenDirection(self, firstFrame, frames):
@@ -143,6 +207,9 @@ class Knight(Object):
             self.currentSprite += 1
             if self.currentSprite >= firstFrame + frames:
                 self.currentSprite = firstFrame
+    
+    def setAttackSprite(self, firstFrame, frames):
+        self.currentSprite = firstFrame + (int) ((ATTACK_DURATION - self.attackTimer) / (ATTACK_DURATION / frames))
 
     def draw(self, display: pygame.Surface) -> None:
         pygame.draw.rect(display, (255, 0, 0), self.hitbox)
