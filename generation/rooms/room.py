@@ -8,17 +8,21 @@ class Room:
     def __init__(self, tilemaps: Tilemaps) -> None:
         self.sprite_layers: list[SpriteLayer] = []
         self.layers: list[Layer] = []
+        self.chests: list[Chest] = []
         self.generate(tilemaps)
 
     def generate(self, tilemaps: Tilemaps) -> None:
         layout = self.make_layout(tilemaps)
+        chests = self.make_chests(TILE_SCALE)
         self.generate_sprite_layers(layout)
         self.generate_transition_layer(self.get_transitions(), tilemaps)
+        self.generate_chests_layer(chests, tilemaps)
         self.generate_collision(layout)
         
         for layer in self.sprite_layers:
             self.layers.append(layer)
         self.layers.append(self.transition_layer)
+        self.layers.append(self.chests_layer)
         
 
     def generate_sprite_layers(self, layout: list[list[list[TileEnum]]]) -> None:
@@ -56,6 +60,10 @@ class Room:
         self.transition_layer = TransitionLayer(tilemaps.get_map("transition"))
         self.transition_layer.tiles = transitions
 
+    def generate_chests_layer(self, chests: list["Chest"], tilemaps: Tilemaps) -> None:
+        self.chests_layer = ChestsLayer(tilemaps.get_map("chests"))
+        self.chests_layer.chests = chests
+
     def generate_collision(self, layout: list[list[list[TileEnum]]]) -> None:
         layout0 = layout[0]
         self.collision_rects: list[pygame.Rect] = []
@@ -82,9 +90,11 @@ class Room:
     def make_layout(self, tilemaps: Tilemaps) -> list[list[list[TileEnum]]]:
         return []
     
+    def make_chests(self, size: int) -> list["Chest"]:
+        return []
+
     def get_transitions(self) -> list[tuple[int, int]]:
         return []
-    
 
     def draw(self, display: pygame.Surface) -> None:
         for i in range(len(self.layers)):
@@ -108,6 +118,26 @@ class TransitionLayer(Layer):
         for tile in self.tiles:
             display.blit(self.tilemap.tiles[0], 
                         pygame.Vector2(tile[0] * self.tilemap.size, tile[1] * self.tilemap.size))
+            
+class ChestsLayer(Layer):
+    def __init__(self, tilemap: Tilemap) -> None:
+        super().__init__(tilemap)
+        self.chests: list[Chest] = []
+
+    def draw(self, display: pygame.Surface) -> None:
+        for chest in self.chests:
+            display.blit(self.tilemap.tiles[chest.get_sprite()], 
+                        pygame.Vector2(chest.pos.x * self.tilemap.size, chest.pos.y * self.tilemap.size))
+
+class Chest:
+    def __init__(self, x: int, y: int, size: int) -> None:
+        self.pos = pygame.Vector2(x, y)
+        self.hitbox = pygame.Rect(self.pos.x * size, self.pos.y * size, size, size)
+        self.opened = False
+
+    def get_sprite(self) -> int:
+        if self.opened: return 1
+        return 0
 
 class SpriteLayer(Layer):
     def __init__(self, tilemap: Tilemap) -> None:
@@ -131,3 +161,4 @@ class SpriteLayer(Layer):
                 # normal
                 display.blit(self.tilemap.tiles[self.tiles[y][x]], 
                              pygame.Vector2(x * self.tilemap.size, y * self.tilemap.size))
+            

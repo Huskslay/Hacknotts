@@ -1,6 +1,6 @@
 import pygame
 
-from generation.rooms.room import Room, SpriteLayer
+from generation.rooms.room import Room, SpriteLayer, Chest
 from generation.tilemap import Tilemaps
 
 from variables import TileEnum
@@ -21,7 +21,7 @@ class StartRoom(Room):
 
     def make_layout(self, tilemaps: Tilemaps) -> list[list[list[TileEnum]]]:
         self.sprite_layers = [SpriteLayer(tilemaps.get_map("grass"))]
-        
+
         room = (5, 2, 14, 8)
         layout = self.make_empty_layout()
 
@@ -38,6 +38,9 @@ class StartRoom(Room):
                 else: layout[0][y][x] = TileEnum.FLOOR
 
         return layout
+    
+    def make_chests(self, size: int) -> list["Chest"]:
+        return [Chest(14, 7, size)]
     
     def get_transitions(self) -> list[tuple[int, int]]:
         return [(4, 5), (10, 1), (10, 9), (15, 5)]
