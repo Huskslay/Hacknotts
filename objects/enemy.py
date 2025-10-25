@@ -25,6 +25,7 @@ class DirectionEnum(Enum):
 
 class Enemy(Object):
     def __init__(self, display) -> None:
+        super().__init__()
         self.display = display
         self.deltaTotal = 0
         self.projectiles: list[Projectile] = []
@@ -32,9 +33,6 @@ class Enemy(Object):
         self.state = EnemyStateEnum.IDLE
         self.directionFacing = DirectionEnum.UP
         self.currentSprite = 0
-        self.hitbox : pygame.Rect
-        self.size : tuple[int, int]
-        self.hitboxSize : tuple[int, int]
         self.spriteChangeWaitTimer = ANIMSPEED
         self.attackWaitTimer = ATTACKSPEED
         self.pos = pygame.Vector2(0, 0)
@@ -85,20 +83,11 @@ class Enemy(Object):
             if projectile.shouldBeDestroyed():
                 self.projectiles.remove(projectile)
 
-
-    def move_by(self, x: float, y: float) -> None:
-        self.move_to(self.pos.x + x, self.pos.y + y)
-
     def setSprite(self, delta) -> None:
         pass
 
     def handleStates(self, delta) -> None:
         pass
-
-    def move_to(self, x: float, y: float) -> None:
-        self.pos = pygame.Vector2(x, y)
-        self.hitbox.x = (int)(x + self.size[0] / 2 - self.hitboxSize[0] / 2)
-        self.hitbox.y = (int)(y + self.size[1] / 2 - self.hitboxSize[1] / 2)
 
     def draw(self, display: pygame.Surface) -> None:
         pygame.draw.rect(display, (255, 0, 0), self.hitbox)
@@ -214,16 +203,16 @@ class SlimeAttackSlash(Projectile):
     def __init__(self, display, playerCenter):
         super().__init__()
         self.size = (24, 32)
-        self.hitbox_size = (24, 32)
+        self.hitboxSize = (24, 32)
 
         self.display = display
         self.sprite = pygame.image.load("Assets\\TempAttackAnim.png").convert_alpha()
         self.sprite = pygame.transform.scale(self.sprite, self.size)
-        self.hitbox = pygame.Rect(0, 0, self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = pygame.Rect(0, 0, self.hitboxSize[0], self.hitboxSize[1])
         self.pos = playerCenter - pygame.Vector2(self.size[0], self.size[1]) / 2
 
-        self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitbox_size[0] / 2)
-        self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitbox_size[1] / 2)
+        self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
+        self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
     
     def update(self, delta, map: Map, objects: list[Object]):
         self.lifetime -= delta

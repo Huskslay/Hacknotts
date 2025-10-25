@@ -32,11 +32,11 @@ class Knight(Object):
 
         self.size = (96, 96)
         self.spriteSize = (48, 48)
-        self.hitbox_size = (24, 24)
+        self.hitboxSize = (24, 24)
 
         self.display = display
         self.spritesheet = pygame.image.load("Assets\\KnightSpritesheet.png").convert_alpha()
-        self.hitbox = pygame.Rect(0, 0, self.hitbox_size[0], self.hitbox_size[1])
+        self.hitbox = pygame.Rect(0, 0, self.hitboxSize[0], self.hitboxSize[1])
         self.pos = pygame.Vector2(0, 0)
         self.directionFacing = DirectionEnum.DOWN
         self.animState = AnimStateEnum.IDLE
@@ -87,14 +87,6 @@ class Knight(Object):
                 self.directionFacing = DirectionEnum.LEFT
             else:
                 self.directionFacing = DirectionEnum.DOWN
-
-    def move_by(self, x: float, y: float) -> None:
-        self.move_to(self.pos.x + x, self.pos.y + y)
-
-    def move_to(self, x: float, y: float) -> None:
-        self.pos = pygame.Vector2(x, y)
-        self.hitbox.x = (int)(x + self.size[0] / 2 - self.hitbox_size[0] / 2)
-        self.hitbox.y = (int)(y + self.size[1] / 2 - self.hitbox_size[1] / 2)
 
     def initialiseSprites(self) -> None:
         self.spritesheetSize = pygame.Vector2(6, 24)
