@@ -17,7 +17,6 @@ player = knight.Knight(display)
 slime1 = enemy.Slime(display)
 objects.append(player)
 objects.append(slime1)
-
 for object in objects:
     if isinstance(object, enemy.Enemy):
         object.passPlayerReference(player)

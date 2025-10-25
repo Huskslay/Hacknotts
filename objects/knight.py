@@ -82,7 +82,8 @@ class Knight(Object):
                 self.directionFacing = DirectionEnum.UP
             elif angle >= 135 or angle <= -135:
                 self.directionFacing = DirectionEnum.LEFT
-            self.directionFacing = DirectionEnum.DOWN
+            else:
+                self.directionFacing = DirectionEnum.DOWN
 
     def move_by(self, x: float, y: float) -> None:
         self.move_to(self.pos.x + x, self.pos.y + y)
