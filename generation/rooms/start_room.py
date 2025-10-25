@@ -22,7 +22,7 @@ class StartRoom(Room):
     def make_layout(self, tilemaps: Tilemaps) -> list[list[list[TileEnum]]]:
         self.sprite_layers = [SpriteLayer(tilemaps.get_map("grass"))]
         
-        room = (4, 4, 12, 8)
+        room = (5, 2, 14, 8)
         layout = self.make_empty_layout()
 
         for x in range(room[0], room[2] + 1):
@@ -40,7 +40,7 @@ class StartRoom(Room):
         return layout
     
     def get_transitions(self) -> list[tuple[int, int]]:
-        return [(0, 0), (0, 1), (0, 2), (1, 0)]
+        return [(4, 5), (10, 1), (10, 9), (15, 5)]
 
     def draw(self, display: pygame.Surface) -> None:
         super().draw(display)

@@ -61,7 +61,7 @@ class Room:
         self.rects: list[pygame.Rect] = []
         for x in range(len(layout0[0])):
             for y in range(len(layout0)):
-                if layout0[y][x] == TileEnum.EMPTY:
+                if layout0[y][x] == TileEnum.EMPTY and (x, y) not in self.transition_layer.tiles:
                     self.rects.append(
                         pygame.Rect(x * TILE_SCALE, y * TILE_SCALE, TILE_SCALE, TILE_SCALE)
                     )
