@@ -28,8 +28,7 @@ def main():
     healthBar = HealthBar(display)
     healthBar.passPlayerReference(player)
 
-    slime1 = enemy.Slime()
-    slime1.move_to(400, 400, generation.map)
+    slime1 = enemy.Slime(pygame.Vector2(400, 400))
     objects.append(player)
     objects.append(slime1)
     for object in objects:

@@ -32,19 +32,19 @@ class Map:
             case TransitionDirEnum.LEFT:
                 self.room = (self.room[0] - 1, self.room[1])
                 pos = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.RIGHT).pos
-                knight.move_to(pos.x * TILE_SCALE - TILE_SCALE, pos.y * TILE_SCALE, self, True)
+                knight.move_to_force(pos.x * TILE_SCALE - TILE_SCALE, pos.y * TILE_SCALE)
             case TransitionDirEnum.UP: 
                 self.room = (self.room[0], self.room[1] - 1)
                 pos = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.DOWN).pos
-                knight.move_to(pos.x * TILE_SCALE, pos.y * TILE_SCALE - TILE_SCALE, self, True)
+                knight.move_to_force(pos.x * TILE_SCALE, pos.y * TILE_SCALE - TILE_SCALE)
             case TransitionDirEnum.DOWN:
                 self.room = (self.room[0], self.room[1] + 1)
                 pos = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.UP).pos
-                knight.move_to(pos.x * TILE_SCALE, pos.y * TILE_SCALE + TILE_SCALE, self, True)
+                knight.move_to_force(pos.x * TILE_SCALE, pos.y * TILE_SCALE + TILE_SCALE)
             case TransitionDirEnum.RIGHT: 
                 self.room = (self.room[0] + 1, self.room[1])
                 pos = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.LEFT).pos
-                knight.move_to(pos.x * TILE_SCALE + TILE_SCALE, pos.y * TILE_SCALE, self, True)
+                knight.move_to_force(pos.x * TILE_SCALE + TILE_SCALE, pos.y * TILE_SCALE)
 
     def draw(self, display: pygame.Surface) -> None:
         self.get_room().draw(display)

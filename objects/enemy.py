@@ -26,7 +26,7 @@ class DirectionEnum(Enum):
     RIGHT = 4
 
 class Enemy(Object):
-    def __init__(self) -> None:
+    def __init__(self, pos: pygame.Vector2) -> None:
         super().__init__()
         self.deltaTotal = 0
         self.alive = True
@@ -37,7 +37,7 @@ class Enemy(Object):
         self.currentSprite = 0
         self.spriteChangeWaitTimer = ANIMSPEED
         self.attackWaitTimer = ATTACKSPEED
-        self.pos = pygame.Vector2(0, 0)
+        self.pos = pos
         self.spritesheet = None
         self.commitedToAttack = False
     
@@ -113,8 +113,8 @@ XSPRITES = 4
 YSPRITES = 8
 
 class Slime(Enemy):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, pos: pygame.Vector2) -> None:
+        super().__init__(pos)
         self.spriteSize = (16, 16)
         self.size = (32, 32)
         self.hitboxSize = (30, 30)
