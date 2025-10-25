@@ -93,6 +93,7 @@ class Knight(Object):
         self.setAnimState(movementVector)
         self.setSprite(delta)
         self.chests(map)
+        self.transitions(map)
 
     def startAttackSequence(self):
         if not self.attacking:
@@ -128,7 +129,6 @@ class Knight(Object):
                 self.attackHitboxRect.move_ip(-(int) (playerRect.width * HITBOX_DISTANCE_LEFT), 0)
             case DirectionEnum.RIGHT:
                 self.attackHitboxRect.move_ip((int) (playerRect.width * HITBOX_DISTANCE_RIGHT), 0)
-        
         
     def takeDamage(self, damageAmount: int) -> None:
         if self.damageCooldown > 0:
@@ -219,10 +219,14 @@ class Knight(Object):
         self.currentSprite = firstFrame + (int) ((ATTACK_DURATION - self.attackTimer) / (ATTACK_DURATION / frames))
 
     def chests(self, map: Map) -> None:
-        for chest in map.room.chests_layer.chests:
+        for chest in map.get_room().chests_layer.chests:
             if chest.opened: continue
             if self.hitbox.colliderect(chest.hitbox):
                 chest.opened = True
+    def transitions(self, map: Map) -> None:
+        for transition in map.get_room().transition_layer.transitions:
+            if self.hitbox.colliderect(transition.hitbox):
+                map.transition(transition.dir, self)
                 
 
     def draw(self, display: pygame.Surface) -> None:

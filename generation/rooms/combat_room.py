@@ -5,7 +5,7 @@ from generation.tilemap import Tilemaps
 
 from variables import TileEnum, TransitionDirEnum
 
-class StartRoom(Room):
+class CombatRoom(Room):
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum]) -> None:
         super().__init__(tilemaps, disable_transitions)
         

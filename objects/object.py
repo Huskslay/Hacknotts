@@ -13,21 +13,23 @@ class Object:
     def move_by(self, x: float, y: float, map: Map) -> None:
         self.move_to(self.pos.x + x, self.pos.y + y, map)
 
-    def move_to(self, x: float, y: float, map: Map) -> None:
+    def move_to(self, x: float, y: float, map: Map, force: bool = False) -> None:
         old_pos = self.pos
         self.pos = pygame.Vector2(x, y)
         self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
         self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
 
-        if map.room.is_colliding(self.hitbox):
+        if force: return
+
+        if map.get_room().is_colliding(self.hitbox):
             self.pos = pygame.Vector2(x, old_pos.y)
             self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
             self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
-            if map.room.is_colliding(self.hitbox):
+            if map.get_room().is_colliding(self.hitbox):
                 self.pos = pygame.Vector2(old_pos.x, y)
                 self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
                 self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
-                if map.room.is_colliding(self.hitbox):
+                if map.get_room().is_colliding(self.hitbox):
                     self.pos = old_pos
                     self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
                     self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
