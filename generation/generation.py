@@ -25,6 +25,7 @@ class Generation(Object):
          [TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.TL, TileEnum.TR],
          ])
         self.room: Union[Room, None] = None
+        self.go()
 
     def go(self) -> None:
         self.room = StartRoom(self.tilemaps)
