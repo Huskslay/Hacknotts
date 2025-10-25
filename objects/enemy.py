@@ -20,34 +20,39 @@ class DirectionEnum(Enum):
     LEFT = 3
     RIGHT = 4
 
-class Enemy:
+class Enemy(Object):
     def __init__(self, display) -> None:
         self.display = display
         self.deltaTotal = 0
-        self.projectiles: list[Object] = []
+        self.projectiles = []
+        self.sprite : pygame.Surface
         self.state = EnemyStateEnum.IDLE
         self.directionFacing = DirectionEnum.UP
         self.currentSprite = 0
+        self.hitbox : pygame.Rect
+        self.size : tuple[int, int]
+        self.hitboxSize : tuple[int, int]
         self.spriteChangeWaitTimer = ANIMSPEED
         self.attackWaitTimer = ATTACKSPEED
         self.pos = pygame.Vector2(0, 0)
-        self.move_to(100, 100)
-        self.initialiseSprites()
+        self.spritesheet = None
     
-    def passPlayerReference(self, player):
+    def passPlayerReference(self, player) -> None:
         self.player = player
     
-    def initialiseSprites(self) -> None:
+    def initialiseSprites(self, spritesheetPath, xSprites, ySprites, spriteSize) -> None:
         self.spriteList = []
-        amountOfSprites = int(self.spritesheetSize.x * self.spritesheetSize.y)
+        self.spritesheetSize = pygame.Vector2(xSprites, ySprites)
+        self.spritesheet = pygame.image.load(spritesheetPath).convert_alpha()
+        amountOfSprites = (int)(self.spritesheetSize.x * self.spritesheetSize.y)
         for spriteCount in range(0, amountOfSprites - 1):
-            tempSprite = pygame.image.load("Assets\\Slimesheet.png").convert_alpha()
-            xCoords = (self.spriteSize[0] * (spriteCount % self.spritesheetSize.x))
-            yCoords = int(spriteCount / self.spritesheetSize.x) * (self.spriteSize[0])
-            tempSprite = self.spritesheet.subsurface(pygame.Rect(xCoords, yCoords, self.spriteSize[0], self.spriteSize[1]))
+            tempSprite = pygame.image.load(spritesheetPath).convert_alpha()
+            xCoords = (spriteSize[0] * (spriteCount % self.spritesheetSize.x))
+            yCoords = int(spriteCount / self.spritesheetSize.x) * (spriteSize[0])
+            tempSprite = self.spritesheet.subsurface(pygame.Rect(xCoords, yCoords, spriteSize[0], spriteSize[1]))
             tempSprite = pygame.transform.scale(tempSprite, self.size)
             self.spriteList.append(tempSprite)
-    
+
     def getFacingDirection(self, movementVector) -> DirectionEnum:
         if movementVector == pygame.Vector2(0, 0):
             return DirectionEnum.DOWN
@@ -81,16 +86,16 @@ class Enemy:
     def move_by(self, x: float, y: float) -> None:
         self.move_to(self.pos.x + x, self.pos.y + y)
 
-    def setSprite(self, delta):
+    def setSprite(self, delta) -> None:
         pass
 
-    def handleStates(self):
+    def handleStates(self, delta) -> None:
         pass
 
     def move_to(self, x: float, y: float) -> None:
         self.pos = pygame.Vector2(x, y)
-        self.hitbox.x = (int)(x + self.size[0] / 2 - self.hitbox_size[0] / 2)
-        self.hitbox.y = (int)(y + self.size[1] / 2 - self.hitbox_size[1] / 2)
+        self.hitbox.x = (int)(x + self.size[0] / 2 - self.hitboxSize[0] / 2)
+        self.hitbox.y = (int)(y + self.size[1] / 2 - self.hitboxSize[1] / 2)
 
     def draw(self, display: pygame.Surface) -> None:
         pygame.draw.rect(display, (255, 0, 0), self.hitbox)
@@ -105,18 +110,20 @@ SLIME_FIRST_FRAME_UP = 12
 SLIMEIDLEFRAMES = 4
 SLIME_SPEED = 5
 
+XSPRITES = 4
+YSPRITES = 8
+
 class Slime(Enemy):
     def __init__(self, display) -> None:
+        super().__init__(display)
         self.spriteSize = (16, 16)
         self.size = (32, 32)
-        self.hitbox_size = (30, 30)
-        self.spritesheet = pygame.image.load("Assets\\Slimesheet.png").convert_alpha()
-        self.hitbox = pygame.Rect(1, 1, self.hitbox_size[0], self.hitbox_size[1])
-        super().__init__(display)
+        self.hitboxSize = (30, 30)
+        self.hitbox = pygame.Rect(1, 1, self.hitboxSize[0], self.hitboxSize[1])
+        self.initialiseSprites("Assets\\Slimesheet.png", XSPRITES, YSPRITES, self.spriteSize)
     
-    def initialiseSprites(self) -> None:
-        self.spritesheetSize = pygame.Vector2(4, 8)
-        super().initialiseSprites()
+    def initialiseSprites(self, spritesheetPath, xSprites, ySprites, spriteSize) -> None:
+        super().initialiseSprites(spritesheetPath, xSprites, ySprites, spriteSize)
     
     def setSprite(self, delta):
         self.spriteChangeWaitTimer -= delta
@@ -140,7 +147,7 @@ class Slime(Enemy):
             if self.currentSprite >= firstFrame + frames:
                 self.currentSprite = firstFrame
     
-    def handleStates(self, delta):
+    def handleStates(self, delta) -> None:
         self.changeState()
         self.actUponState(delta)
     
@@ -190,9 +197,19 @@ class Slime(Enemy):
             if distanceToPlayer > SLIME_ATTACK_RADIUS:
                 self.state = EnemyStateEnum.PURSUIT
 
-class SlimeAttackSlash(Object):
-    def __init__(self, display, playerCenter):
+DEFAULT_PROJECTILE_LIFESPAN = 200
 
+class Projectile(Object):
+    def __init__(self) -> None:
+        self.lifetime = DEFAULT_PROJECTILE_LIFESPAN
+        super().__init__()
+
+    def shouldBeDestroyed(self) -> bool:
+        return self.lifetime <= 0
+
+class SlimeAttackSlash(Projectile):
+    def __init__(self, display, playerCenter):
+        super().__init__()
         self.size = (24, 32)
         self.hitbox_size = (24, 32)
 
@@ -201,13 +218,9 @@ class SlimeAttackSlash(Object):
         self.sprite = pygame.transform.scale(self.sprite, self.size)
         self.hitbox = pygame.Rect(0, 0, self.hitbox_size[0], self.hitbox_size[1])
         self.pos = playerCenter - pygame.Vector2(self.size[0], self.size[1]) / 2
-        self.lifetime = 200 #ms
 
         self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitbox_size[0] / 2)
         self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitbox_size[1] / 2)
-
-    def shouldBeDestroyed(self) -> bool:
-        return self.lifetime <= 0
     
     def update(self, delta):
         self.lifetime -= delta
