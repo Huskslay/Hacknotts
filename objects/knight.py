@@ -70,6 +70,7 @@ class Knight(Object):
         self.setFacingDirection(movementVector)
         self.setAnimState(movementVector)
         self.setSprite(delta)
+        self.chests(map)
         
     def takeDamage(self, damageAmount: int) -> None:
         if self.damageCooldown > 0:
@@ -143,6 +144,13 @@ class Knight(Object):
             self.currentSprite += 1
             if self.currentSprite >= firstFrame + frames:
                 self.currentSprite = firstFrame
+
+    def chests(self, map: Map) -> None:
+        for chest in map.room.chests_layer.chests:
+            if chest.opened: continue
+            if self.hitbox.colliderect(chest.hitbox):
+                chest.opened = True
+                
 
     def draw(self, display: pygame.Surface) -> None:
         pygame.draw.rect(display, (255, 0, 0), self.hitbox)

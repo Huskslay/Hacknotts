@@ -14,8 +14,8 @@ class Tilemap:
         self.bls: list[int] = []
         self.brs: list[int] = []
      
-        for y in range(len(tiles[0])):
-            for x in range(len(tiles)):
+        for x in range(len(tiles[0])):
+            for y in range(len(tiles)):
                 match (tiles[y][x]):
                     case TileEnum.FLOOR:
                         self.floors.append(len(self.tiles))
