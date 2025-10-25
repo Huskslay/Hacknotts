@@ -35,7 +35,7 @@ while True:
     display.fill("purple") 
     
     for object in objects:
-        object.update(delta, generation.map)
+        object.update(delta, generation.map, objects)
 
     for object in objects:
         object.draw(display)

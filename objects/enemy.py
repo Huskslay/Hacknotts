@@ -76,12 +76,12 @@ class Enemy(Object):
         yComponent = self.pos[1] + self.size[1] / 2
         return pygame.Vector2(xComponent, yComponent)
 
-    def update(self, delta: int, map: Map) -> None:
+    def update(self, delta: int, map: Map, objects: list[Object]) -> None:
         self.deltaTotal += delta
         self.setSprite(delta)
         self.handleStates(delta)
         for projectile in self.projectiles[:]:
-            projectile.update(delta, map)
+            projectile.update(delta, map, objects)
             if projectile.shouldBeDestroyed():
                 self.projectiles.remove(projectile)
 
@@ -154,8 +154,8 @@ class Slime(Enemy):
         self.changeState()
         self.actUponState(delta)
     
-    def update(self, delta, map: Map):
-        super().update(delta, map)
+    def update(self, delta, map: Map, objects: list[Object]):
+        super().update(delta, map, objects)
 
     
     def actUponState(self, delta):
@@ -225,7 +225,7 @@ class SlimeAttackSlash(Projectile):
         self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitbox_size[0] / 2)
         self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitbox_size[1] / 2)
     
-    def update(self, delta, map: Map):
+    def update(self, delta, map: Map, objects: list[Object]):
         self.lifetime -= delta
     
     def draw(self, display: pygame.Surface) -> None:

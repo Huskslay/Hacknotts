@@ -50,7 +50,7 @@ class Knight(Object):
         yComponent = self.pos[1] + self.size[1] / 2
         return pygame.Vector2(xComponent, yComponent)
 
-    def update(self, delta: int, map: Map) -> None:
+    def update(self, delta: int, map: Map, objects: list[Object]) -> None:
         keys = pygame.key.get_pressed()
         movementVector = pygame.Vector2(0, 0)
         if keys[pygame.K_w]:

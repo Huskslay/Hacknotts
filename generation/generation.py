@@ -32,7 +32,7 @@ class Generation(Object):
     def go(self) -> None:
         self.room = StartRoom(self.tilemaps)
 
-    def update(self, delta: int, map: Map) -> None:
+    def update(self, delta: int, map: Map, objects: list[Object]) -> None:
         pass
 
     def draw(self, display: pygame.Surface) -> None:
