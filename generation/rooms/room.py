@@ -14,7 +14,7 @@ class Room:
         layout = self.make_layout(tilemaps)
         self.generate_sprite_layers(layout)
         self.generate_transition_layer(self.get_transitions(), tilemaps)
-        self.generate_collision_layer(layout)
+        self.generate_collision(layout)
         
         for layer in self.sprite_layers:
             self.layers.append(layer)
@@ -56,7 +56,7 @@ class Room:
         self.transition_layer = TransitionLayer(tilemaps.get_map("transition"))
         self.transition_layer.tiles = transitions
 
-    def generate_collision_layer(self, layout: list[list[list[TileEnum]]]) -> None:
+    def generate_collision(self, layout: list[list[list[TileEnum]]]) -> None:
         layout0 = layout[0]
         self.rects: list[pygame.Rect] = []
         for x in range(len(layout0[0])):
@@ -124,11 +124,3 @@ class SpriteLayer(Layer):
                 # normal
                 display.blit(self.tilemap.tiles[self.tiles[y][x]], 
                              pygame.Vector2(x * self.tilemap.size, y * self.tilemap.size))
-                
-class CollisiionLayer(Layer):
-    def __init__(self, tilemap: Tilemap) -> None:
-        super().__init__(tilemap)
-
-
-    def draw(self, display: pygame.Surface) -> None:
-        pass
