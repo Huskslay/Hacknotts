@@ -1,23 +1,34 @@
 import pygame
+from objects.object import Object
 
 pygame.init()
 delta = 0
 display = pygame.display.set_mode((1280,720))
 
-import knight
+
+import objects.knight as knight
 
 clock = pygame.time.Clock()
 
-knight = knight.Knight(display)
+objects: list[Object] = []
+
+player = knight.Knight(display)
+objects.append(player)
 
 while True:
+    delta = clock.tick(60)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             raise SystemExit
         
     display.fill("purple") 
-    knight.update(delta)
+    
+    for object in objects:
+        object.update(delta)
 
-    pygame.display.flip()  # Refresh on-screen display
-    delta = clock.tick(60)         # wait until next frame (at 60 FPS)
+    for object in objects:
+        object.draw(display)
+
+    pygame.display.flip()
