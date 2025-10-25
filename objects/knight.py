@@ -3,6 +3,8 @@ from enum import Enum
 from objects.object import Object
 from generation.map import Map
 
+## pee pee poo poo
+
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
 
 FIRST_FRAME_DOWN_IDLE = 0
@@ -83,7 +85,8 @@ class Knight(Object):
                 self.directionFacing = DirectionEnum.UP
             elif angle >= 135 or angle <= -135:
                 self.directionFacing = DirectionEnum.LEFT
-            self.directionFacing = DirectionEnum.DOWN
+            else:
+                self.directionFacing = DirectionEnum.DOWN
 
     def move_by(self, x: float, y: float) -> None:
         self.move_to(self.pos.x + x, self.pos.y + y)
