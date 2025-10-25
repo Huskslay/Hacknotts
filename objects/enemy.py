@@ -45,6 +45,10 @@ class Enemy(Object):
     def passPlayerReference(self, player) -> None:
         self.player = player
     
+    def onHit(self):
+        pass
+
+    
     def initialiseSprites(self, spritesheetPath, xSprites, ySprites, spriteSize) -> None:
         self.spriteList = []
         self.spritesheetSize = pygame.Vector2(xSprites, ySprites)
