@@ -65,7 +65,7 @@ class Room:
                     self.collision_rects.append(
                         pygame.Rect(x * TILE_SCALE, y * TILE_SCALE, TILE_SCALE, TILE_SCALE)
                     )
-    
+
     def is_adjacent_to_non_empty(self, layout0: list[list[TileEnum]], x, y) -> bool:
         return (x > 0 and not self.is_non_empty(layout0, x - 1, y)) or \
                (x < len(layout0[0]) - 1 and not self.is_non_empty(layout0, x + 1, y)) or \
@@ -89,8 +89,6 @@ class Room:
     def draw(self, display: pygame.Surface) -> None:
         for i in range(len(self.layers)):
             self.layers[i].draw(display)
-        # for i in range(len(self.collision_rects)):
-        #     pygame.draw.rect(display, (255, 0, 255), self.collision_rects[i])
 
 
 class Layer:
