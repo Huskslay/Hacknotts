@@ -2,7 +2,7 @@ import pygame
 from random import randint
 
 from generation.tilemap import Tilemaps, Tilemap
-from variables import SIZE, TileEnum
+from variables import SIZE, TileEnum, TILE_SCALE
 
 class Room:
     def __init__(self, tilemaps: Tilemaps) -> None:
@@ -14,13 +14,14 @@ class Room:
         layout = self.make_layout(tilemaps)
         self.generate_sprite_layers(layout)
         self.generate_transition_layer(self.get_transitions(), tilemaps)
+        self.generate_collision_layer(layout)
         
         for layer in self.sprite_layers:
             self.layers.append(layer)
         self.layers.append(self.transition_layer)
         
 
-    def generate_sprite_layers(self, layout: list[list[list[TileEnum]]]):
+    def generate_sprite_layers(self, layout: list[list[list[TileEnum]]]) -> None:
         for i in range(len(self.sprite_layers)):
             for x in range(len(self.sprite_layers[i].tiles[0])):
                 for y in range(len(self.sprite_layers[i].tiles)):
@@ -54,6 +55,22 @@ class Room:
     def generate_transition_layer(self, transitions: list[tuple[int, int]], tilemaps: Tilemaps) -> None:
         self.transition_layer = TransitionLayer(tilemaps.get_map("transition"))
         self.transition_layer.tiles = transitions
+
+    def generate_collision_layer(self, layout: list[list[list[TileEnum]]]) -> None:
+        layout0 = layout[0]
+        self.rects: list[pygame.Rect] = []
+        for x in range(len(layout0[0])):
+            for y in range(len(layout0)):
+                if layout0[y][x] == TileEnum.EMPTY:
+                    self.rects.append(
+                        pygame.Rect(x * TILE_SCALE, y * TILE_SCALE, TILE_SCALE, TILE_SCALE)
+                    )
+        pass
+
+    def is_colliding(self, hitbox : pygame.Rect) -> bool:
+        for i in range(len(self.rects)):
+            if self.rects[i].colliderect(hitbox): return True
+        return False
 
     def make_layout(self, tilemaps: Tilemaps) -> list[list[list[TileEnum]]]:
         return []
@@ -107,3 +124,11 @@ class SpriteLayer(Layer):
                 # normal
                 display.blit(self.tilemap.tiles[self.tiles[y][x]], 
                              pygame.Vector2(x * self.tilemap.size, y * self.tilemap.size))
+                
+class CollisiionLayer(Layer):
+    def __init__(self, tilemap: Tilemap) -> None:
+        super().__init__(tilemap)
+
+
+    def draw(self, display: pygame.Surface) -> None:
+        pass

@@ -44,7 +44,6 @@ class Knight(Object):
         self.spriteChangeWaitTimer = ANIMSPEED
         self.currentSprite = 0
         self.initialiseSprites()
-        self.move_to(100, 100)
     
     def getCenter(self) -> pygame.Vector2:
         xComponent = self.pos[0] + self.size[0] / 2
@@ -64,7 +63,7 @@ class Knight(Object):
             movementVector += pygame.Vector2(1, 0)
         if movementVector.length() != 0:
             movementVector = movementVector.normalize() * MOVEMENT_SPEED * delta * 10
-        self.move_by(movementVector.x, movementVector.y)
+        self.move_by(movementVector.x, movementVector.y, map)
         self.setFacingDirection(movementVector)
         self.setAnimState(movementVector)
         self.setSprite(delta)

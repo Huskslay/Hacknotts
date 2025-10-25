@@ -17,7 +17,9 @@ generation = Generation()
 objects.append(generation)
 
 player = knight.Knight(display)
+player.move_to(400, 400, generation.map)
 slime1 = enemy.Slime(display)
+slime1.move_to(400, 400, generation.map)
 objects.append(player)
 objects.append(slime1)
 for object in objects:

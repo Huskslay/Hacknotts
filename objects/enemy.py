@@ -77,7 +77,7 @@ class Enemy(Object):
     def update(self, delta: int, map: Map, objects: list[Object]) -> None:
         self.deltaTotal += delta
         self.setSprite(delta)
-        self.handleStates(delta)
+        self.handleStates(delta, map)
         for projectile in self.projectiles[:]:
             projectile.update(delta, map, objects)
             if projectile.shouldBeDestroyed():
@@ -86,7 +86,7 @@ class Enemy(Object):
     def setSprite(self, delta) -> None:
         pass
 
-    def handleStates(self, delta) -> None:
+    def handleStates(self, delta, map: Map) -> None:
         pass
 
     def draw(self, display: pygame.Surface) -> None:
@@ -139,27 +139,27 @@ class Slime(Enemy):
             if self.currentSprite >= firstFrame + frames:
                 self.currentSprite = firstFrame
     
-    def handleStates(self, delta) -> None:
+    def handleStates(self, delta, map: Map) -> None:
         self.changeState()
-        self.actUponState(delta)
+        self.actUponState(delta, map)
     
     def update(self, delta, map: Map, objects: list[Object]):
         super().update(delta, map, objects)
 
     
-    def actUponState(self, delta):
+    def actUponState(self, delta, map: Map):
         if self.state == EnemyStateEnum.PURSUIT:
-            self.actUponStatePursuit(delta)
+            self.actUponStatePursuit(delta, map)
         elif self.state == EnemyStateEnum.ATTACK:
             self.actUponStateAttack(delta)
     
-    def actUponStatePursuit(self, delta):
+    def actUponStatePursuit(self, delta, map):
         toPlayerVector = (self.player.getCenter() - self.getCenter())
         if toPlayerVector == pygame.Vector2(0, 0):
             directionToPlayer = pygame.Vector2(0, 0)
         else:
             directionToPlayer = toPlayerVector.normalize()
-        self.move_by(directionToPlayer.x * SLIME_SPEED * delta , directionToPlayer.y * SLIME_SPEED * delta)
+        self.move_by(directionToPlayer.x * SLIME_SPEED * delta , directionToPlayer.y * SLIME_SPEED * delta, map)
         self.directionFacing = self.getFacingDirection(directionToPlayer)
     
     def actUponStateAttack(self, delta):
