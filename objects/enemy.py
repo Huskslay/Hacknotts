@@ -120,7 +120,7 @@ class Slime(Enemy):
     def initialiseSprites(self, spritesheetPath, xSprites, ySprites, spriteSize) -> None:
         super().initialiseSprites(spritesheetPath, xSprites, ySprites, spriteSize)
     
-    def setSprite(self, delta):
+    def setSprite(self, delta) -> None:
         self.spriteChangeWaitTimer -= delta
         if self.directionFacing == DirectionEnum.DOWN:
             self.setSpriteGivenDirection(SLIME_FIRST_FRAME_DOWN, SLIMEIDLEFRAMES)
@@ -132,7 +132,7 @@ class Slime(Enemy):
             self.setSpriteGivenDirection(SLIME_IDLE_FRAME_RIGHT, SLIMEIDLEFRAMES)
         self.sprite = self.spriteList[self.currentSprite]
     
-    def setSpriteGivenDirection(self, firstFrame, frames):
+    def setSpriteGivenDirection(self, firstFrame, frames) -> None:
         isAnimWithinBounds = self.currentSprite < firstFrame + frames and self.currentSprite >= firstFrame
         if not isAnimWithinBounds:
             self.currentSprite = firstFrame
@@ -146,17 +146,17 @@ class Slime(Enemy):
         self.changeState()
         self.actUponState(delta, map)
     
-    def update(self, delta, map: Map, objects: list[Object]):
+    def update(self, delta, map: Map, objects: list[Object]) -> None:
         super().update(delta, map, objects)
 
     
-    def actUponState(self, delta, map: Map):
+    def actUponState(self, delta, map: Map) -> None:
         if self.state == EnemyStateEnum.PURSUIT:
             self.actUponStatePursuit(delta, map)
         elif self.state == EnemyStateEnum.ATTACK:
             self.actUponStateAttack(delta)
     
-    def actUponStatePursuit(self, delta, map: Map):
+    def actUponStatePursuit(self, delta, map: Map) -> None:
         toPlayerVector = (self.player.getCenter() - self.getCenter())
         if toPlayerVector == pygame.Vector2(0, 0):
             directionToPlayer = pygame.Vector2(0, 0)
@@ -165,7 +165,7 @@ class Slime(Enemy):
         self.move_by(directionToPlayer.x * SLIME_SPEED * delta , directionToPlayer.y * SLIME_SPEED * delta, map)
         self.directionFacing = self.getFacingDirection(directionToPlayer)
     
-    def actUponStateAttack(self, delta):
+    def actUponStateAttack(self, delta) -> None:
         self.attackWaitTimer -= delta
         if self.attackWaitTimer <= 0:
             self.attackWaitTimer = ATTACKSPEED
@@ -177,13 +177,13 @@ class Slime(Enemy):
             if distanceToPlayer <= SLIME_ATTACK_RADIUS:
                 self.lockTarget()
     
-    def lockTarget(self):
+    def lockTarget(self) -> None:
         self.targetCoord = self.player.getCenter()
         warnProjectile = SlimeAttackWarn(self.display, self.targetCoord)
         self.projectiles.append(warnProjectile)
         self.commitedToAttack = True
 
-    def changeState(self):
+    def changeState(self) -> None:
         distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
         if self.state == EnemyStateEnum.IDLE:
             if distanceToPlayer <= SLIME_AGGRESSION_RADIUS:
@@ -225,7 +225,7 @@ class SlimeAttackSlash(Projectile):
         self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
         self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
     
-    def update(self, delta, map: Map, objects: list[Object]):
+    def update(self, delta, map: Map, objects: list[Object]) -> None:
         self.lifetime -= delta
         if self.hitbox.colliderect(self.player.hitbox) and self.canDoDamage:
             self.player.takeDamage(1)
@@ -256,7 +256,7 @@ class SlimeAttackWarn(Projectile):
         self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
         self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
     
-    def update(self, delta, map: Map, objects: list[Object]):
+    def update(self, delta, map: Map, objects: list[Object]) -> None:
         self.lifetime -= delta
         self.visible = (int)((self.lifetime * FLASH_FREQUENCY) / 100) % 2 == 0
         

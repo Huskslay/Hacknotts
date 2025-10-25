@@ -28,7 +28,6 @@ class DeathScreen():
         self.isHovering = False
         self.restarting = False
 
-
     def draw(self, delta) -> None:
         self.deltatotal += delta
         self.display.fill((40, 40, 40)) 
@@ -37,11 +36,10 @@ class DeathScreen():
         self.checkForInputs()
         self.renderInRestart()
 
-
     def passPlayerReference(self, player) -> None:
         self.player = player
     
-    def renderInDeathSkull(self):
+    def renderInDeathSkull(self) -> None:
         skullPos = self.skullSprite.get_rect(center=self.display.get_rect().center)
         skull_x, skull_y = skullPos.topleft
         self.display.blit(self.skullSprite, (
@@ -49,7 +47,7 @@ class DeathScreen():
             int(skull_y + math.cos(self.deltatotal/ SKULLROTATIONSLOW) * SKULLROTATIONSIZE)
         ))
     
-    def renderInDeathText(self):
+    def renderInDeathText(self) -> None:
         textPos = self.textSprite.get_rect(center=self.display.get_rect().center)
         text_x, text_y = textPos.topleft
         self.display.blit(self.textSprite, (
@@ -57,7 +55,7 @@ class DeathScreen():
             int(text_y + math.cos(self.deltatotal/ TEXTOSCILLATIONSLOW) * TEXTOSCILLATIONSIZE)
         ))
     
-    def renderInRestart(self):
+    def renderInRestart(self) -> None:
         text_x, text_y = RESTART_TEXT_X, RESTART_TEXT_Y
         self.display.blit(self.restartTextSprite, (
             text_x, 
@@ -71,7 +69,7 @@ class DeathScreen():
                 int(text_y + math.cos(self.deltatotal/ RESTARTOSCILLATIONSLOW) * RESTARTOSCILLATIONSIZE)
             ))
 
-    def checkForInputs(self):
+    def checkForInputs(self) -> None:
         mousePos = pygame.mouse.get_pos()
         yOffset = int(math.cos(self.deltatotal / RESTARTOSCILLATIONSLOW) * RESTARTOSCILLATIONSIZE)
         current_rect = self.restart_rect.move(0, yOffset)
