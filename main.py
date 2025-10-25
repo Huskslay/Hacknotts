@@ -46,6 +46,8 @@ def main():
         if player.currentHealth > 0:
             
             display.fill("purple") 
+
+            objects = [obj for obj in objects if not isinstance(obj, enemy.Enemy) or obj.alive]
             
             for object in objects:
                 object.update(delta, generation.map, objects)

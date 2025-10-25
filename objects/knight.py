@@ -107,7 +107,7 @@ class Knight(Object):
         if self.attackHitboxRect != None:
             for object in objects:
                 if isinstance(object, Enemy):
-                    pass # hit logic
+                    object.onHit()
 
     def setAttackHitbox(self):
         self.attackHitboxRect = self.attackHitboxTemplate.copy()

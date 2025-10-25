@@ -30,6 +30,7 @@ class Enemy(Object):
         super().__init__()
         self.display = display
         self.deltaTotal = 0
+        self.alive = True
         self.projectiles: list[Projectile] = []
         self.sprite : pygame.Surface
         self.state = EnemyStateEnum.IDLE
@@ -148,7 +149,6 @@ class Slime(Enemy):
     
     def update(self, delta, map: Map, objects: list[Object]) -> None:
         super().update(delta, map, objects)
-
     
     def actUponState(self, delta, map: Map) -> None:
         if self.state == EnemyStateEnum.PURSUIT:
@@ -182,6 +182,9 @@ class Slime(Enemy):
         warnProjectile = SlimeAttackWarn(self.display, self.targetCoord)
         self.projectiles.append(warnProjectile)
         self.commitedToAttack = True
+    
+    def onHit(self):
+        self.alive = False
 
     def changeState(self) -> None:
         distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
