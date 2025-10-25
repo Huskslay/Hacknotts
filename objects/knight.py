@@ -2,6 +2,8 @@ import pygame
 from enum import Enum
 from objects.object import Object
 
+## pee pee poo poo
+
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
 
 FIRST_FRAME_DOWN_IDLE = 0
