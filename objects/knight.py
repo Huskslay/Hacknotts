@@ -6,8 +6,8 @@ from generation.map import Map
 
 ## pee pee poo poo
 
-ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
-MOVEMENT_SPEED = 0.05
+ANIMSPEED = 120 ## Wait time in ms between sprite changes in anim
+MOVEMENT_SPEED = 0.02
 ATTACK_DURATION = 300 
 MOVEMENT_SLOW_WHEN_ATTACKING = 0
 
@@ -24,6 +24,11 @@ FIRST_FRAME_RIGHT_ATTACK = 108
 FIRST_FRAME_LEFT_ATTACK = 114
 FIRST_FRAME_UP_ATTACK = 102
 IDLE_FRAMES = 6
+SWORD_HITBOX_SIZE_MULTIPLIER_WHEN_ABOVE_OR_BELOW = 1.5
+HITBOX_DISTANCE_UP = 0.5
+HITBOX_DISTANCE_DOWN = 1
+HITBOX_DISTANCE_LEFT = 0.75
+HITBOX_DISTANCE_RIGHT = 0.75
 
 class AnimStateEnum(Enum):
     IDLE = 1
@@ -46,7 +51,6 @@ class Knight(Object):
         self.display = display
         self.spritesheet = pygame.image.load("Assets\\KnightSpritesheet.png").convert_alpha()
         self.hitbox = pygame.Rect(4, 4, self.hitboxSize[0], self.hitboxSize[1])
-        self.attackHitboxTemplate = pygame.Rect(0, 0, self.spriteSize[0], self.spriteSize[1])
         self.pos = pygame.Vector2(0, 0)
         self.directionFacing = DirectionEnum.DOWN
         self.animState = AnimStateEnum.IDLE
@@ -107,21 +111,23 @@ class Knight(Object):
         if self.attackHitboxRect != None:
             for object in objects:
                 if isinstance(object, Enemy):
-                    object.onHit()
+                    if self.attackHitboxRect.colliderect(object.hitbox):
+                        object.onHit()
 
     def setAttackHitbox(self):
-        self.attackHitboxRect = self.attackHitboxTemplate.copy()
+        playerRect = pygame.Rect(self.pos.x + 32, self.pos.y + 32, self.size[0] /3, self.size[1] /3)
+        self.attackHitboxRect = playerRect.copy()
         match self.directionFacing:
             case DirectionEnum.UP:
-                self.attackHitboxRect.move_ip(0, -self.attackHitboxTemplate.height)
-                self.attackHitboxRect.size = (self.attackHitboxRect.width * 2, self.attackHitboxRect.height)
+                self.attackHitboxRect.move_ip(-(int)(self.attackHitboxRect.width * ((SWORD_HITBOX_SIZE_MULTIPLIER_WHEN_ABOVE_OR_BELOW -1)/2)), -(int)(playerRect.height * HITBOX_DISTANCE_UP))
+                self.attackHitboxRect.size = ((int)(self.attackHitboxRect.width * SWORD_HITBOX_SIZE_MULTIPLIER_WHEN_ABOVE_OR_BELOW), self.attackHitboxRect.height)
             case DirectionEnum.DOWN:
-                self.attackHitboxRect.move_ip(0, self.attackHitboxTemplate.height)
-                self.attackHitboxRect.size = (self.attackHitboxRect.width * 2, self.attackHitboxRect.height)
+                self.attackHitboxRect.move_ip(-(int)(self.attackHitboxRect.width * ((SWORD_HITBOX_SIZE_MULTIPLIER_WHEN_ABOVE_OR_BELOW -1)/2)), (int) (playerRect.height * HITBOX_DISTANCE_DOWN))
+                self.attackHitboxRect.size = ((int)(self.attackHitboxRect.width * SWORD_HITBOX_SIZE_MULTIPLIER_WHEN_ABOVE_OR_BELOW), self.attackHitboxRect.height)
             case DirectionEnum.LEFT:
-                self.attackHitboxRect.move_ip(-self.attackHitboxTemplate.width, 0)
+                self.attackHitboxRect.move_ip(-(int) (playerRect.width * HITBOX_DISTANCE_LEFT), 0)
             case DirectionEnum.RIGHT:
-                self.attackHitboxRect.move_ip(self.attackHitboxTemplate.width, 0)
+                self.attackHitboxRect.move_ip((int) (playerRect.width * HITBOX_DISTANCE_RIGHT), 0)
         
         
     def takeDamage(self, damageAmount: int) -> None:
@@ -222,3 +228,5 @@ class Knight(Object):
     def draw(self, display: pygame.Surface) -> None:
         pygame.draw.rect(display, (255, 0, 0), self.hitbox)
         self.display.blit(self.sprite, self.pos)
+        if self.attackHitboxRect != None:
+           pygame.draw.rect(display, (0, 255, 255), self.attackHitboxRect)
