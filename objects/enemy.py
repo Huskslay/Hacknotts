@@ -26,9 +26,8 @@ class DirectionEnum(Enum):
     RIGHT = 4
 
 class Enemy(Object):
-    def __init__(self, display) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.display = display
         self.deltaTotal = 0
         self.alive = True
         self.projectiles: list[Projectile] = []
@@ -99,7 +98,7 @@ class Enemy(Object):
 
     def draw(self, display: pygame.Surface) -> None:
         pygame.draw.rect(display, (255, 0, 0), self.hitbox)
-        self.display.blit(self.sprite, self.pos)
+        display.blit(self.sprite, self.pos)
         for projectile in self.projectiles:
             projectile.draw(display)
 
@@ -114,8 +113,8 @@ XSPRITES = 4
 YSPRITES = 8
 
 class Slime(Enemy):
-    def __init__(self, display) -> None:
-        super().__init__(display)
+    def __init__(self) -> None:
+        super().__init__()
         self.spriteSize = (16, 16)
         self.size = (32, 32)
         self.hitboxSize = (30, 30)
@@ -173,7 +172,7 @@ class Slime(Enemy):
         self.attackWaitTimer -= delta
         if self.attackWaitTimer <= 0:
             self.attackWaitTimer = ATTACKSPEED
-            attackProjectile = SlimeAttackSlash(self.display, self.targetCoord)
+            attackProjectile = SlimeAttackSlash(self.targetCoord)
             attackProjectile.passPlayerReference(self.player)
             self.projectiles.append(attackProjectile)
             self.commitedToAttack = False
@@ -183,7 +182,7 @@ class Slime(Enemy):
     
     def lockTarget(self) -> None:
         self.targetCoord = self.player.getCenter()
-        warnProjectile = SlimeAttackWarn(self.display, self.targetCoord)
+        warnProjectile = SlimeAttackWarn(self.targetCoord)
         self.projectiles.append(warnProjectile)
         self.commitedToAttack = True
     
@@ -217,13 +216,12 @@ class Projectile(Object):
         return self.lifetime <= 0
 
 class SlimeAttackSlash(Projectile):
-    def __init__(self, display, playerCenter):
+    def __init__(self, playerCenter):
         super().__init__()
         self.size = (24, 32)
         self.hitboxSize = (24, 32)
         self.canDoDamage = True
 
-        self.display = display
         self.sprite = pygame.image.load("Assets\\TempAttackAnim.png").convert_alpha()
         self.sprite = pygame.transform.scale(self.sprite, self.size)
         self.hitbox = pygame.Rect(0, 0, self.hitboxSize[0], self.hitboxSize[1])
@@ -243,16 +241,15 @@ class SlimeAttackSlash(Projectile):
     
     def draw(self, display: pygame.Surface) -> None:
         pygame.draw.rect(display, (0, 255, 255), self.hitbox)
-        self.display.blit(self.sprite, self.pos)
+        display.blit(self.sprite, self.pos)
 
 class SlimeAttackWarn(Projectile):
-    def __init__(self, display, playerCenter):
+    def __init__(self, playerCenter):
         super().__init__()
         self.size = (24, 32)
         self.hitboxSize = (24, 32)
         self.canDoDamage = True
 
-        self.display = display
         self.sprite = pygame.image.load("Assets\\AttackWarn.png").convert_alpha()
         self.sprite = pygame.transform.scale(self.sprite, self.size)
         self.hitbox = pygame.Rect(0, 0, self.hitboxSize[0], self.hitboxSize[1])
@@ -270,4 +267,4 @@ class SlimeAttackWarn(Projectile):
     def draw(self, display: pygame.Surface) -> None:
         if not self.visible:
             return
-        self.display.blit(self.sprite, self.pos)
+        display.blit(self.sprite, self.pos)

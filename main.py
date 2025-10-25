@@ -15,6 +15,7 @@ from objects.DeathScreen import DeathScreen
 def main():
     clock = pygame.time.Clock()
     objects: list[Object] = []
+
     generation = Generation()
     deathScreen = DeathScreen(display)
     player : knight.Knight
@@ -27,7 +28,7 @@ def main():
     healthBar = HealthBar(display)
     healthBar.passPlayerReference(player)
 
-    slime1 = enemy.Slime(display)
+    slime1 = enemy.Slime()
     slime1.move_to(400, 400, generation.map)
     objects.append(player)
     objects.append(slime1)
