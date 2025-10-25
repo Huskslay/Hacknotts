@@ -61,11 +61,18 @@ class Room:
         self.rects: list[pygame.Rect] = []
         for x in range(len(layout0[0])):
             for y in range(len(layout0)):
-                if layout0[y][x] == TileEnum.EMPTY and (x, y) not in self.transition_layer.tiles:
+                if self.is_non_empty(layout0, x, y) and self.is_adjacent_to_non_empty(layout0, x, y):
                     self.rects.append(
                         pygame.Rect(x * TILE_SCALE, y * TILE_SCALE, TILE_SCALE, TILE_SCALE)
                     )
-        pass
+    
+    def is_adjacent_to_non_empty(self, layout0: list[list[TileEnum]], x, y) -> bool:
+        return (x > 0 and self.is_non_empty(layout0, x - 1, y)) or \
+               (x < len(layout0[0]) - 1 and self.is_non_empty(layout0, x + 1, y)) or \
+               (y > 0 and self.is_non_empty(layout0, x, y - 1)) or \
+               (y < len(layout0) - 1 and self.is_non_empty(layout0, x, y + 1))
+    def is_non_empty(self, layout0: list[list[TileEnum]], x, y) -> bool:
+        return layout0[y][x] == TileEnum.EMPTY and (x, y) not in self.transition_layer.tiles
 
     def is_colliding(self, hitbox : pygame.Rect) -> bool:
         for i in range(len(self.rects)):
