@@ -2,6 +2,7 @@ import pygame
 from typing import Union
 
 from generation.tilemap import Tilemaps
+from generation.map import Map
 from generation.rooms.room import Room
 from generation.rooms.start_room import StartRoom
 from objects.object import Object
@@ -24,13 +25,14 @@ class Generation(Object):
          [TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR],
          [TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.TL, TileEnum.TR],
          ])
+        self.map = Map()
         self.room: Union[Room, None] = None
         self.go()
 
     def go(self) -> None:
         self.room = StartRoom(self.tilemaps)
 
-    def update(self, delta: int) -> None:
+    def update(self, delta: int, map: Map) -> None:
         pass
 
     def draw(self, display: pygame.Surface) -> None:

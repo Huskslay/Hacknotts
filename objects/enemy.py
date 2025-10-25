@@ -1,6 +1,9 @@
 import pygame
 from enum import Enum
+
 from objects.object import Object
+from generation.map import Map
+
 
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
 ATTACKSPEED = 550 ## Wait time in ms 
@@ -24,7 +27,7 @@ class Enemy(Object):
     def __init__(self, display) -> None:
         self.display = display
         self.deltaTotal = 0
-        self.projectiles = []
+        self.projectiles: list[Projectile] = []
         self.sprite : pygame.Surface
         self.state = EnemyStateEnum.IDLE
         self.directionFacing = DirectionEnum.UP
@@ -73,12 +76,12 @@ class Enemy(Object):
         yComponent = self.pos[1] + self.size[1] / 2
         return pygame.Vector2(xComponent, yComponent)
 
-    def update(self, delta: int) -> None:
+    def update(self, delta: int, map: Map) -> None:
         self.deltaTotal += delta
         self.setSprite(delta)
         self.handleStates(delta)
         for projectile in self.projectiles[:]:
-            projectile.update(delta)
+            projectile.update(delta, map)
             if projectile.shouldBeDestroyed():
                 self.projectiles.remove(projectile)
 
@@ -151,8 +154,8 @@ class Slime(Enemy):
         self.changeState()
         self.actUponState(delta)
     
-    def update(self, delta):
-        super().update(delta)
+    def update(self, delta, map: Map):
+        super().update(delta, map)
 
     
     def actUponState(self, delta):
@@ -222,7 +225,7 @@ class SlimeAttackSlash(Projectile):
         self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitbox_size[0] / 2)
         self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitbox_size[1] / 2)
     
-    def update(self, delta):
+    def update(self, delta, map: Map):
         self.lifetime -= delta
     
     def draw(self, display: pygame.Surface) -> None:

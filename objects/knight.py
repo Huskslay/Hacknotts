@@ -1,6 +1,7 @@
 import pygame
 from enum import Enum
 from objects.object import Object
+from generation.map import Map
 
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
 
@@ -47,7 +48,7 @@ class Knight(Object):
         yComponent = self.pos[1] + self.size[1] / 2
         return pygame.Vector2(xComponent, yComponent)
 
-    def update(self, delta: int) -> None:
+    def update(self, delta: int, map: Map) -> None:
         keys = pygame.key.get_pressed()
         movementVector = pygame.Vector2(0, 0)
         if keys[pygame.K_w]:
