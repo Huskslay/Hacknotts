@@ -6,6 +6,7 @@ from generation.map import Map
 ## pee pee poo poo
 
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
+MOVEMENT_SPEED = 0.05
 
 FIRST_FRAME_DOWN_IDLE = 0
 FIRST_FRAME_LEFT_IDLE = 18
@@ -54,13 +55,15 @@ class Knight(Object):
         keys = pygame.key.get_pressed()
         movementVector = pygame.Vector2(0, 0)
         if keys[pygame.K_w]:
-            movementVector += pygame.Vector2(0, -10)
+            movementVector += pygame.Vector2(0, -1)
         if keys[pygame.K_a]:
-            movementVector += pygame.Vector2(-10, 0)
+            movementVector += pygame.Vector2(-1, 0)
         if keys[pygame.K_s]:
-            movementVector += pygame.Vector2(0, 10)
+            movementVector += pygame.Vector2(0, 1)
         if keys[pygame.K_d]:
-            movementVector += pygame.Vector2(10, 0)
+            movementVector += pygame.Vector2(1, 0)
+        if movementVector.length() != 0:
+            movementVector = movementVector.normalize() * MOVEMENT_SPEED * delta * 10
         self.move_by(movementVector.x, movementVector.y)
         self.setFacingDirection(movementVector)
         self.setAnimState(movementVector)

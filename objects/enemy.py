@@ -100,7 +100,7 @@ SLIME_IDLE_FRAME_LEFT = 4
 SLIME_IDLE_FRAME_RIGHT = 8
 SLIME_FIRST_FRAME_UP = 12
 SLIMEIDLEFRAMES = 4
-SLIME_SPEED = 5
+SLIME_SPEED = 0.3
 
 XSPRITES = 4
 YSPRITES = 8
@@ -149,17 +149,17 @@ class Slime(Enemy):
     
     def actUponState(self, delta):
         if self.state == EnemyStateEnum.PURSUIT:
-            self.actUponStatePursuit()
+            self.actUponStatePursuit(delta)
         elif self.state == EnemyStateEnum.ATTACK:
             self.actUponStateAttack(delta)
     
-    def actUponStatePursuit(self):
+    def actUponStatePursuit(self, delta):
         toPlayerVector = (self.player.getCenter() - self.getCenter())
         if toPlayerVector == pygame.Vector2(0, 0):
             directionToPlayer = pygame.Vector2(0, 0)
         else:
             directionToPlayer = toPlayerVector.normalize()
-        self.move_by(directionToPlayer.x * SLIME_SPEED, directionToPlayer.y * SLIME_SPEED)
+        self.move_by(directionToPlayer.x * SLIME_SPEED * delta , directionToPlayer.y * SLIME_SPEED * delta)
         self.directionFacing = self.getFacingDirection(directionToPlayer)
     
     def actUponStateAttack(self, delta):
