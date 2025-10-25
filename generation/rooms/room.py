@@ -2,20 +2,18 @@ import pygame
 from random import randint
 
 from generation.tilemap import Tilemaps, Tilemap
-from variables import SIZE, TileEnum, TILE_SCALE
+from variables import SIZE, TileEnum, TILE_SCALE, TransitionDirEnum
 
 class Room:
-    def __init__(self, tilemaps: Tilemaps) -> None:
+    def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum]) -> None:
         self.sprite_layers: list[SpriteLayer] = []
         self.layers: list[Layer] = []
         self.chests: list[Chest] = []
-        self.generate(tilemaps)
-
-    def generate(self, tilemaps: Tilemaps) -> None:
+        
         layout = self.make_layout(tilemaps)
         chests = self.make_chests(TILE_SCALE)
         self.generate_sprite_layers(layout)
-        self.generate_transition_layer(self.get_transitions(), tilemaps)
+        self.generate_transition_layer(self.get_transitions(TILE_SCALE, disable_transitions), tilemaps)
         self.generate_chests_layer(chests, tilemaps)
         self.generate_collision(layout)
         
@@ -56,9 +54,9 @@ class Room:
             case _:
                 pass
 
-    def generate_transition_layer(self, transitions: list[tuple[int, int]], tilemaps: Tilemaps) -> None:
+    def generate_transition_layer(self, transitions: list["Transition"], tilemaps: Tilemaps) -> None:
         self.transition_layer = TransitionLayer(tilemaps.get_map("transition"))
-        self.transition_layer.tiles = transitions
+        self.transition_layer.transitions = transitions
 
     def generate_chests_layer(self, chests: list["Chest"], tilemaps: Tilemaps) -> None:
         self.chests_layer = ChestsLayer(tilemaps.get_map("chests"))
@@ -80,7 +78,7 @@ class Room:
                (y > 0 and not self.is_non_empty(layout0, x, y - 1)) or \
                (y < len(layout0) - 1 and not self.is_non_empty(layout0, x, y + 1))
     def is_non_empty(self, layout0: list[list[TileEnum]], x, y) -> bool:
-        return layout0[y][x] == TileEnum.EMPTY and (x, y) not in self.transition_layer.tiles
+        return layout0[y][x] == TileEnum.EMPTY and not self.transition_layer.transition_at_point(x, y)
 
     def is_colliding(self, hitbox : pygame.Rect) -> bool:
         for i in range(len(self.collision_rects)):
@@ -93,7 +91,7 @@ class Room:
     def make_chests(self, size: int) -> list["Chest"]:
         return []
 
-    def get_transitions(self) -> list[tuple[int, int]]:
+    def get_transitions(self, size: int, disable_transitions: list[TransitionDirEnum]) -> list["Transition"]:
         return []
 
     def draw(self, display: pygame.Surface) -> None:
@@ -112,13 +110,33 @@ class Layer:
 class TransitionLayer(Layer):
     def __init__(self, tilemap: Tilemap) -> None:
         super().__init__(tilemap)
-        self.tiles: list[tuple[int, int]] = []
+        self.transitions: list[Transition] = []
+
+    def transition_at_point(self, x: int, y: int) -> bool:
+        for transition in self.transitions:
+            if transition.pos.x == x and transition.pos.y == y: return True
+        return False
+
+    def transition_at_dir(self, dir: TransitionDirEnum) -> "Transition":
+        for transition in self.transitions:
+            if transition.dir == dir: return transition
+        return self.transitions[0]
 
     def draw(self, display: pygame.Surface) -> None:
-        for tile in self.tiles:
-            display.blit(self.tilemap.tiles[0], 
-                        pygame.Vector2(tile[0] * self.tilemap.size, tile[1] * self.tilemap.size))
-            
+        for transition in self.transitions:
+            display.blit(self.tilemap.tiles[transition.get_sprite()], 
+                        pygame.Vector2(transition.pos[0] * self.tilemap.size, transition.pos[1] * self.tilemap.size))
+
+class Transition:
+    def __init__(self, x: int, y: int, dir: TransitionDirEnum, size: int) -> None:
+        self.pos = pygame.Vector2(x, y)
+        self.hitbox = pygame.Rect(self.pos.x * size, self.pos.y * size, size, size)
+        self.dir = dir
+
+    def get_sprite(self) -> int:
+        return 0
+
+
 class ChestsLayer(Layer):
     def __init__(self, tilemap: Tilemap) -> None:
         super().__init__(tilemap)
@@ -161,4 +179,4 @@ class SpriteLayer(Layer):
                 # normal
                 display.blit(self.tilemap.tiles[self.tiles[y][x]], 
                              pygame.Vector2(x * self.tilemap.size, y * self.tilemap.size))
-            
+        
