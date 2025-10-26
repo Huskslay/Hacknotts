@@ -63,6 +63,7 @@ class Knight(Object):
         self.maxHealth = 6
         self.currentHealth = 4
         self.coins = 0
+        self.potionStacks = 0
         self.damageCooldown = 0
         self.attacking = False
         self.attackTimer = 0
@@ -124,6 +125,12 @@ class Knight(Object):
             self.attack_id += 1
             self.attackTimer = ATTACK_DURATION
             self.attacking = True
+        
+    def getDamage(self) -> float:
+        if self.potionStacks == 0:
+            return 1
+        else:
+            return 1.2 ** self.potionStacks
     
     def handleAttackState(self, delta: int, map: Map) -> None:
         self.attackTimer -= delta
@@ -138,7 +145,7 @@ class Knight(Object):
             for object in map.get_room().objects:
                 if isinstance(object, Enemy):
                     if self.attackHitboxRect.colliderect(object.hitbox):
-                        object.onHit(1, self.attack_id)
+                        object.onHit(self.getDamage(), self.attack_id)
 
     def setAttackHitbox(self) -> None:
         playerRect = pygame.Rect(self.pos.x + 32, self.pos.y + 32, self.size[0] /3, self.size[1] /3)
