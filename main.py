@@ -12,7 +12,7 @@ from objects.object import Object
 import objects.knight as knight
 import objects.enemy as enemy
 from generation.generation import Generation
-from objects.HealthBar import HealthBar
+from objects.HealthBar import HealthAndCoinBar
 from objects.DeathScreen import DeathScreen
 from objects.Shopkeeper import Shopkeeper
 from objects.coin import Coin
@@ -30,7 +30,7 @@ def main():
     player.move_to_force(400, 400)
     generation.create_map(player)
 
-    healthBar = HealthBar(display)
+    healthBar = HealthAndCoinBar(display)
     healthBar.passPlayerReference(player)
 
     for n in range(1, 30):
@@ -60,7 +60,7 @@ def main():
             for object in checks:
                 object.draw(display)
             
-            healthBar.draw()
+            healthBar.draw(delta)
 
         else:
             deathScreen.draw(delta)
