@@ -242,7 +242,8 @@ class Knight(Object):
                 
 
     def draw(self, display: pygame.Surface) -> None:
-        pygame.draw.rect(display, (255, 0, 0), self.hitbox)
         display.blit(self.sprite, self.pos)
-        if self.attackHitboxRect != None:
-           pygame.draw.rect(display, (0, 255, 255), self.attackHitboxRect)
+        if __debug__: 
+            pygame.draw.rect(display, (255, 0, 0), self.hitbox)
+            if self.attackHitboxRect != None:
+                pygame.draw.rect(display, (0, 255, 255), self.attackHitboxRect)

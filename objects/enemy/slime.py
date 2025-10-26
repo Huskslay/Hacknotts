@@ -160,7 +160,7 @@ class SlimeAttackSlash(Projectile):
         self.player = player
     
     def draw(self, display: pygame.Surface) -> None:
-        pygame.draw.rect(display, (0, 255, 255), self.hitbox)
+        if __debug__: pygame.draw.rect(display, (0, 255, 255), self.hitbox)
         display.blit(self.sprite, self.pos)
 
 class SlimeAttackWarn(Projectile):

@@ -105,10 +105,11 @@ class Enemy(Object):
         pass
 
     def draw(self, display: pygame.Surface) -> None:
-        pygame.draw.rect(display, (255, 0, 0), self.hitbox)
         display.blit(self.sprite, self.pos)
         for projectile in self.projectiles:
             projectile.draw(display)
+            
+        if __debug__: pygame.draw.rect(display, (255, 0, 0), self.hitbox)
 
 DEFAULT_PROJECTILE_LIFESPAN = 200
 
