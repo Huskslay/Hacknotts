@@ -14,7 +14,8 @@ PROMPT_LOCATION = (50, -18)
 class FinalHallway(Room):
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
         super().__init__(tilemaps, disable_transitions, knight)
-        self.trapdoor = Trapdoor2(18, 5, TILE_SCALE, tilemaps.get_map("trapdoor"), knight)
+        self.hole = Hole(18, 5, TILE_SCALE, tilemaps.get_map("hole"), knight)
+        self.laddder = Ladder(1, 5, TILE_SCALE, tilemaps.get_map("ladder"), knight)
         
         
     def make_empty_layout(self) -> list[list[list[TileEnum]]]:
@@ -60,10 +61,11 @@ class FinalHallway(Room):
 
     def draw(self, display: pygame.Surface) -> None:
         super().draw(display)
-        self.trapdoor.draw(display)
+        self.hole.draw(display)
+        self.laddder.draw(display)
 
 
-class Trapdoor2:
+class Hole:
     def __init__(self, x: int, y: int, size: int, tilemap: Tilemap, player: "Knight") -> None:
         self.pos = pygame.Vector2(x, y)
         self.player = player
@@ -113,3 +115,56 @@ class Trapdoor2:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_e] and image == 1:
             self.player.to_final_boss = True
+
+
+
+class Ladder:
+    def __init__(self, x: int, y: int, size: int, tilemap: Tilemap, player: "Knight") -> None:
+        self.pos = pygame.Vector2(x, y)
+        self.player = player
+        self.tilemap = tilemap
+        self.promptSprites = self.loadPromptSprites()
+        self.promptTimer = ANIMATION_SPEED_PROMPT
+        self.currentPromptFrame = 0
+    
+    def getCenter(self) -> pygame.Vector2:
+        xComponent = self.pos[0] * TILE_SCALE + TILE_SCALE / 2
+        yComponent = self.pos[1] * TILE_SCALE + TILE_SCALE / 2
+        return pygame.Vector2(xComponent, yComponent)
+
+    def inRangeOfPlayer(self) -> bool:
+        return (self.player.getCenter() - self.getCenter()).length() <= INTERACTABLE_DISTANCE
+
+    def loadPromptSprites(self) -> list[pygame.Surface]:
+        sprite1 = pygame.image.load("Assets\\ShopSprites\\EkeyPrompt.png")
+        sprite2 = sprite1.subsurface(pygame.Rect(11, 0, 11, 14))
+        sprite1 = sprite1.subsurface(pygame.Rect(0, 0, 11, 14))
+        sprite1 = pygame.transform.scale(sprite1, (22, 28))
+        sprite2 = pygame.transform.scale(sprite2, (22, 28))
+        return [sprite1, sprite2]
+
+    def handlePromptAnim(self, delta: int) -> None:
+        if self.inRangeOfPlayer():
+            self.isPromptVisible = True
+            self.promptTimer -= delta
+            if self.promptTimer <= 0:
+                self.promptTimer = ANIMATION_SPEED_PROMPT
+                if self.currentPromptFrame == 1:
+                    self.currentPromptFrame = 0
+                else:
+                    self.currentPromptFrame = 1
+        else:
+            self.isPromptVisible = False
+
+    def draw(self, display: pygame.Surface) -> None:
+        self.handlePromptAnim(1)
+
+        if self.inRangeOfPlayer(): image = 1
+        else: image = 0
+        display.blit(self.tilemap.tiles[image], (self.pos.x * TILE_SCALE, self.pos.y * TILE_SCALE))
+        if image == 1: 
+            display.blit(self.promptSprites[self.currentPromptFrame], (self.pos.x * TILE_SCALE + PROMPT_LOCATION[0], self.pos.y * TILE_SCALE + PROMPT_LOCATION[1]))
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_e] and image == 1:
+            self.player.quit_final_hallway = True
