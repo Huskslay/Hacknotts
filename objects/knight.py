@@ -1,7 +1,7 @@
 import pygame
 from enum import Enum
 from objects.object import Object
-from objects.enemy import Enemy
+from objects.enemy.enemy import Enemy
 from generation.map import Map
 
 ## pee pee poo poo

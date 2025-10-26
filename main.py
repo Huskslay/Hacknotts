@@ -10,7 +10,7 @@ display = pygame.display.set_mode((SIZE[0], SIZE[1]))
 
 from objects.object import Object
 import objects.knight as knight
-import objects.enemy as enemy
+import objects.enemy.enemy as enemy
 from generation.generation import Generation
 from objects.HealthBar import HealthAndCoinBar
 from objects.DeathScreen import DeathScreen
