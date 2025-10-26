@@ -15,6 +15,8 @@ class Generation(Object):
         self.tilemaps = Tilemaps()
         self.tilemaps.add_tilemap("transition", "Assets\\Environment\\Transition.png", TILE_SCALE, [[TileEnum.FLOOR]])
         self.tilemaps.add_tilemap("chests", "Assets\\Environment\\Chests.png", TILE_SCALE, [[TileEnum.FLOOR, TileEnum.FLOOR]])
+        self.tilemaps.add_tilemap("trapdoor", "Assets\\Environment\\Trapdoor.png", TILE_SCALE, [[TileEnum.FLOOR, TileEnum.FLOOR]])
+        self.tilemaps.add_tilemap("dungeon", "Assets\\Environment\\Dungeon.png", TILE_SCALE, [[TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.TR, TileEnum.TL]])
         self.tilemaps.add_tilemap("grass", "Assets\\Environment\\TX Tileset Grass.png", TILE_SCALE,
         [
          [TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR],

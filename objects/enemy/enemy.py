@@ -109,12 +109,12 @@ class Enemy(Object):
     def handleStates(self, delta: int, map: Map) -> None:
         pass
 
-    def draw(self, display: pygame.Surface) -> None:
+    def draw(self, display: pygame.Surface) -> None:    
+        if __debug__: pygame.draw.rect(display, (255, 0, 0), self.hitbox)
+
         display.blit(self.sprite, self.pos)
         for projectile in self.projectiles:
             projectile.draw(display)
-            
-        if __debug__: pygame.draw.rect(display, (255, 0, 0), self.hitbox)
 
 DEFAULT_PROJECTILE_LIFESPAN = 200
 
