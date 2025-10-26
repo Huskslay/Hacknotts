@@ -46,6 +46,8 @@ class Knight(Object):
 
         self.wait_timer = 3
         self.attack_id = 0
+        self.to_final_hallway = False
+        self.to_final_boss = False
 
         self.size = (96, 96)
         self.spriteSize = (48, 48)
@@ -75,6 +77,17 @@ class Knight(Object):
 
     def update(self, delta: int, map: Map, objects: list[Object]) -> None:
         if self.wait_timer > 0: self.wait_timer -= delta; self.setSprite(delta); return
+
+        if self.to_final_hallway:
+            self.wait_timer = 5
+            map.transition_to_final_hallway(self)
+            self.to_final_hallway = False
+            return
+        elif self.to_final_boss:
+            self.wait_timer = 5
+            map.transition_to_final_boss(self)
+            self.to_final_boss = False
+            return
 
         keys = pygame.key.get_pressed()
         movementVector = pygame.Vector2(0, 0)
@@ -242,8 +255,8 @@ class Knight(Object):
                 
 
     def draw(self, display: pygame.Surface) -> None:
-        display.blit(self.sprite, self.pos)
         if __debug__: 
             pygame.draw.rect(display, (255, 0, 0), self.hitbox)
             if self.attackHitboxRect != None:
                 pygame.draw.rect(display, (0, 255, 255), self.attackHitboxRect)
+        display.blit(self.sprite, self.pos)

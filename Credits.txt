@@ -10,6 +10,12 @@ https://jamiebrownhill.itch.io/solaria-demo
 
 
 
-Cainos on itch.io for the tilemap sprites
+Cainos on itch.io for the grass tilemap sprites
 
 https://cainos.itch.io/pixel-art-top-down-basic
+
+
+
+Arex_V on itch.io for the dungeon tilemap sprites
+
+https://arex-v.itch.io/damp-dungeons
