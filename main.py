@@ -1,8 +1,11 @@
 import pygame
 
+
+from variables import FPS, SIZE
+
 pygame.init()
 delta = 0
-display = pygame.display.set_mode((1280,720))
+display = pygame.display.set_mode((SIZE[0], SIZE[1]))
 
 
 from objects.object import Object
@@ -29,7 +32,6 @@ def main():
     healthBar = HealthBar(display)
     healthBar.passPlayerReference(player)
 
-
     objects.append(player)
 
     shopkeeper = Shopkeeper(pygame.Vector2(500, 300))
@@ -37,7 +39,7 @@ def main():
     objects.append(shopkeeper)
 
     while True:
-        delta = clock.tick(60)
+        delta = clock.tick(FPS)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -45,7 +47,6 @@ def main():
                 raise SystemExit
         
         if player.currentHealth > 0:
-            
             display.fill("purple") 
 
             checks = [obj for obj in objects + generation.map.get_room().enemies if not isinstance(obj, enemy.Enemy) or obj.alive]
@@ -57,7 +58,7 @@ def main():
                 object.draw(display)
             
             healthBar.draw()
-        
+
         else:
             deathScreen.draw(delta)
             if deathScreen.isRestarting():
@@ -65,6 +66,8 @@ def main():
                 return
 
         pygame.display.flip()
+
+        
 
 if __name__ == "__main__":
     while True:
