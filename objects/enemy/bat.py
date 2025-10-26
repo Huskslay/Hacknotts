@@ -192,6 +192,7 @@ class SlimeAttackSlash(Projectile):
 
 class SlimeAttackWarn(Projectile):
     def __init__(self, playerCenter: pygame.Vector2) -> None:
+        self.hitbox_offset = (0, 0)
         super().__init__()
         self.size = (24, 32)
         self.hitboxSize = (24, 32)

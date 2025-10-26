@@ -7,9 +7,7 @@ if TYPE_CHECKING:
     from objects.object import Object
 
 from generation.rooms.room import Room, Transition, SpriteLayer, Tilemaps, Tilemap, Chest
-from variables import TransitionDirEnum, TileEnum, TILE_SCALE, INTERACTABLE_DISTANCE, \
-    ANIMATION_SPEED_PROMPT
-
+from variables import TransitionDirEnum, TileEnum, TILE_SCALE
 class FinalBoss(Room):
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
         super().__init__(tilemaps, disable_transitions, knight)
@@ -19,7 +17,7 @@ class FinalBoss(Room):
         from objects.enemy.dragon import Dragon
         
         self.phases: list[list[tuple[list[Type[Enemy]], int, int]]] = [
-            [  # Phase 2
+            [  # Phase 1
                 ([Slime, Slime, Slime], 5, 5),
             ],
             [  # Phase 2
@@ -28,14 +26,16 @@ class FinalBoss(Room):
             ],
             [  # Phase 3
                 ([Bat, Slime, Bat, Slime, Bat], 5, 5),
-                ([Slime, Bat, Slime, Bat, Slime], 10, 5),
-                ([Bat, Slime, Bat, Slime, Bat], 15, 5),
-                ([Slime, Bat, Slime, Bat, Slime], 20, 5),
+                ([Slime, Bat, Slime, Bat, Slime], 10, 6),
+                ([Bat, Slime, Bat, Slime, Bat], 10, 4),
+                ([Slime, Bat, Slime, Bat, Slime], 15, 5),
             ],
         ]
         self.phase = 0
         self.knight = knight
         self.dragon: Union[Dragon, None] = None
+
+        self.w = pygame.image.load("Assets\\Untitled.png").convert_alpha()
 
         self.summon_next_phase()
         
@@ -101,15 +101,17 @@ class FinalBoss(Room):
 
     def summon_boss(self) -> None:
         from objects.enemy.dragon import Dragon
-        self.dragon = Dragon(pygame.Vector2(10 * TILE_SCALE, 5 * TILE_SCALE), self.knight)
+        self.dragon = Dragon(pygame.Vector2(7 * TILE_SCALE, -5 * TILE_SCALE), self.knight)
         self.objects.append(self.dragon)
+        self.dragon.room = self
 
 
     def draw(self, display: pygame.Surface) -> None:   
 
         if self.dragon != None:
             if not self.dragon.alive:
-                print("Dragon defeated!")
+                display.blit(self.w, (0, 0))
+                return
         else:
             from objects.enemy.enemy import Enemy 
             i = 0

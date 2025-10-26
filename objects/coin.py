@@ -5,6 +5,7 @@ COINSPEED = 0.01
 
 class Coin(Object):
     def __init__(self, pos: pygame.Vector2):
+        self.hitbox_offset = (0, 0)
         super().__init__()
         self.spritesheet = pygame.image.load("Assets\\CoinAnim.png").convert_alpha()
         self.spritesheet = pygame.transform.scale(self.spritesheet, (14 * 7, 14))

@@ -18,7 +18,8 @@ LINE_LENGTH = 20
 class HealthAndCoinBar():
     def __init__(self, display: pygame.Surface) -> None:
         self.display = display
-        self.sprites = []
+        self.heart_sprites: list[pygame.Surface] = []
+        self.sword_sprites: list[pygame.Surface] = []
         self.totalTime = 0
         self.size = (35 * SCALE, 9 * SCALE)
         self.coinSprite = pygame.image.load("Assets\\Coin.png").convert_alpha()
@@ -26,13 +27,20 @@ class HealthAndCoinBar():
         for n in range(0, 7):
             sprite = pygame.image.load(f"Assets\\HealthBar\\Health{n}.png").convert_alpha()
             sprite = pygame.transform.scale(sprite, self.size)
-            self.sprites.append(sprite)
-        self.position = pygame.Vector2(5, 5)
+            self.heart_sprites.append(sprite)
+        for n in range(0, 4):
+            sprite = pygame.image.load(f"Assets\\HealthBar\\Sword{n}.png").convert_alpha()
+            sprite = pygame.transform.scale(sprite, self.size)
+            self.sword_sprites.append(sprite)
+        self.heart_position = pygame.Vector2(5, 5)
+        self.sword_position = pygame.Vector2(160, 5)
     
     def draw(self, delta) -> None:
         self.totalTime += delta
-        healthSprite = self.sprites[self.player.currentHealth]
-        self.display.blit(healthSprite, self.position)
+        healthSprite = self.heart_sprites[self.player.currentHealth]
+        self.display.blit(healthSprite, self.heart_position)
+        swordSprite = self.sword_sprites[self.player.potionStacks]
+        self.display.blit(swordSprite, self.sword_position)
         for n in range(0, self.player.coins):
             yOffset = AMPLITUDE * math.sin((self.totalTime / SPEED_FACTOR) + (n * STEP))
             self.display.blit(self.coinSprite, (COIN_RENDER_POS[0] + ((n * COIN_SPACING) % (LINE_LENGTH * COIN_SPACING)), COIN_RENDER_POS[1] + yOffset + (int)((n * COIN_SPACING) / (LINE_LENGTH * COIN_SPACING)) * LINE_SPACING))

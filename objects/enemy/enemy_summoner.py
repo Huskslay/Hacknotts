@@ -35,6 +35,7 @@ YSPRITES = 1
 
 class EnemySummoner(Enemy):
     def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None] = None) -> None:
+        self.hitbox_offset = (0, 0)
         self.spriteChangeWaitTimer = ANIMSPEED
         super().__init__(pos, knight)
         self.spriteSize = (32, 32)

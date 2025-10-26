@@ -44,7 +44,8 @@ class DirectionEnum(Enum):
 
 class Knight(Object):
     def __init__(self) -> None:
-
+        self.hitbox_offset = (0, 0)
+        
         self.wait_timer = 3
         self.attack_id = 0
         self.to_final_hallway = False

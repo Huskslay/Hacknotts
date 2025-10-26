@@ -24,6 +24,7 @@ class DirectionEnum(Enum):
 
 class Enemy(Object):
     def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None] = None) -> None:
+        self.hitbox_offset = (0, 0)
         super().__init__()
         self.deltaTotal = 0
         self.alive = True
@@ -128,6 +129,7 @@ DEFAULT_PROJECTILE_LIFESPAN = 200
 
 class Projectile(Object):
     def __init__(self) -> None:
+        self.hitbox_offset = (0, 0)
         self.lifetime = DEFAULT_PROJECTILE_LIFESPAN
         super().__init__()
 

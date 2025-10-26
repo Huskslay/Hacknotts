@@ -11,191 +11,194 @@ from generation.map import Map
 from objects.enemy.enemy import Enemy, EnemyStateEnum, DirectionEnum, Projectile
 from objects.coin import Coin
 
+from variables import TILE_SCALE, SIZE
+
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
-SLIME_ATTACKSPEED = 700 ## Wait time in ms 
-PROJECTILE_WARN_TIME = 400
-FLASH_FREQUENCY = 1
 
-SLIME_AGGRESSION_RADIUS = 200
-SLIME_PEACE_RADIUS = 250
-SLIME_ATTACK_RADIUS = 60
+UP_F1 = 0
+RIGHT_F1 = 3
+DOWN_F1 = 7
+LEFT_F1 = 11
+FRAMES = 3
+SPEED = 0.25
+HEALTH = 50
+RECOIL_AMOUNT = 0
+FLY = 4500
+MOB_SUM = 20000
 
-SLIME_FIRST_FRAME_DOWN = 0
-SLIME_IDLE_FRAME_LEFT = 4
-SLIME_IDLE_FRAME_RIGHT = 8
-SLIME_FIRST_FRAME_UP = 12
-SLIMEIDLEFRAMES = 4
-SLIME_SPEED = 0.14
-SLIME_HEALTH = 6
-SLIME_RECOIL_AMOUNT = 0.35
-
-XSPRITES = 4
-YSPRITES = 8
+XSPRITES = 3
+YSPRITES = 4
 
 class Dragon(Enemy):
     def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None] = None) -> None:
+        from generation.rooms.room import Room
+        self.room: Union[Room, None] = None
         self.spriteChangeWaitTimer = ANIMSPEED
         super().__init__(pos, knight)
-        self.spriteSize = (16, 16)
-        self.size = (32, 32)
-        self.isWaitingOnCoinSpawn = False
-        self.hitboxSize = (30, 30)
+        self.spriteSize = (191, 161)
+        self.size = (191, 161)
+        self.hitboxSize = (191, 161)
+        self.hitbox_offset = (191 // 2, 161 // 2)
         self.hitbox = pygame.Rect(1, 1, self.hitboxSize[0], self.hitboxSize[1])
         self.move_to_force(pos.x, pos.y)
-        self.initialiseSprites("Assets\\Slimesheet.png", XSPRITES, YSPRITES, self.spriteSize)
-        self.health = SLIME_HEALTH
-        self.recoilAmount = SLIME_RECOIL_AMOUNT
+        self.initialiseSprites("Assets\\Dwagon.png", XSPRITES, YSPRITES, self.spriteSize)
+        self.health = HEALTH
+        self.recoilAmount = RECOIL_AMOUNT
+        self.directionFacing = DirectionEnum.DOWN
+        self.progress = FLY
+        self.mob_counter = MOB_SUM
+        self.hit_player = False
 
     def initialiseSprites(self, spritesheetPath: str, xSprites: int, ySprites: int, spriteSize: tuple[int, int]) -> None:
-        super().initialiseSprites(spritesheetPath, xSprites, ySprites, spriteSize)
+        self.spritesheet = pygame.image.load(spritesheetPath).convert_alpha()
+        self.up = [
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(0, 0, 191, 161)),
+                (191 * 2, 161 * 2)
+            ),
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(191, 0, 191, 161)),
+                (191 * 2, 161 * 2)
+            ),
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(191*2, 0, 191, 161)),
+                (191 * 2, 161 * 2)
+            )
+        ]
+        self.right = [
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(0, 161, 191, 161)),
+                (191 * 2, 161 * 2)
+            ),
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(191, 161, 191, 161)),
+                (191 * 2, 161 * 2)
+            ),
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(191*2, 161, 191, 161)),
+                (191 * 2, 161 * 2)
+            )
+        ]
+        self.down = [
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(0, 161*2, 191, 161)),
+                (191 * 2, 161 * 2)
+            ),
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(191, 161*2, 191, 161)),
+                (191 * 2, 161 * 2)
+            ),
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(191*2, 161*2, 191, 161)),
+                (191 * 2, 161 * 2)
+            )
+        ]
+        self.left = [
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(0, 161*3, 191, 161)),
+                (191 * 2, 161 * 2)
+            ),
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(191, 161*3, 191, 161)),
+                (191 * 2, 161 * 2)
+            ),
+            pygame.transform.scale(
+                self.spritesheet.subsurface(pygame.Rect(191*2, 161*3, 191, 161)),
+                (191 * 2, 161 * 2)
+            )
+        ]
     
-    def setSprite(self, delta: int) -> None:
-        self.spriteChangeWaitTimer -= delta
-        if self.directionFacing == DirectionEnum.DOWN:
-            self.setSpriteGivenDirection(SLIME_FIRST_FRAME_DOWN, SLIMEIDLEFRAMES)
-        elif self.directionFacing == DirectionEnum.UP:
-            self.setSpriteGivenDirection(SLIME_FIRST_FRAME_UP, SLIMEIDLEFRAMES)
-        elif self.directionFacing == DirectionEnum.LEFT:
-            self.setSpriteGivenDirection(SLIME_IDLE_FRAME_LEFT, SLIMEIDLEFRAMES)
-        elif self.directionFacing == DirectionEnum.RIGHT:
-            self.setSpriteGivenDirection(SLIME_IDLE_FRAME_RIGHT, SLIMEIDLEFRAMES)
-        self.sprite = self.spriteList[self.currentSprite]
-    
-    def setSpriteGivenDirection(self, firstFrame: int, frames: int) -> None:
-        isAnimWithinBounds = self.currentSprite < firstFrame + frames and self.currentSprite >= firstFrame
-        if not isAnimWithinBounds:
-            self.currentSprite = firstFrame
+    def setSpriteGivenDirection(self, sprites: list[pygame.Surface]) -> None:
         if self.spriteChangeWaitTimer <= 0:
             self.spriteChangeWaitTimer = ANIMSPEED
             self.currentSprite += 1
-            if self.currentSprite >= firstFrame + frames:
-                self.currentSprite = firstFrame
-    
-    def handleStates(self, delta: int, map: Map) -> None:
-        self.changeState()
-        self.actUponState(delta, map)
+            if self.currentSprite >= 3: 
+                self.currentSprite = 0
+        self.sprite = sprites[self.currentSprite]
     
     def update(self, delta, map: Map, objects: list[Object]) -> None:
-        super().update(delta, map, objects)
-        if self.isWaitingOnCoinSpawn:
-            self.isWaitingOnCoinSpawn = False
-            for _ in range(0, random.randint(5, 12)):
-                coin = Coin(self.pos)
-                coin.passPlayerReference(self.player)
-                objects.append(coin)
+        self.spriteChangeWaitTimer -= delta
 
-        if self.recoilVelocity.length() > 0:
-            self.move_by(self.recoilVelocity.x * delta, self.recoilVelocity.y * delta, map)
-            self.recoilVelocity *= 0.9
-            if self.recoilVelocity.length() < 0.01:
-                self.recoilVelocity = pygame.Vector2(0, 0)
-    
-    def actUponState(self, delta: int, map: Map) -> None:
-        if self.state == EnemyStateEnum.PURSUIT:
-            self.actUponStatePursuit(delta, map)
-        elif self.state == EnemyStateEnum.ATTACK:
-            self.actUponStateAttack(delta)
-    
-    def actUponStatePursuit(self, delta: int, map: Map) -> None:
-        toPlayerVector = (self.player.getCenter() - self.getCenter())
-        if toPlayerVector == pygame.Vector2(0, 0):
-            directionToPlayer = pygame.Vector2(0, 0)
-        else:
-            directionToPlayer = toPlayerVector.normalize()
-        self.move_by(directionToPlayer.x * SLIME_SPEED * delta , directionToPlayer.y * SLIME_SPEED * delta, map)
-        self.directionFacing = self.getFacingDirection(directionToPlayer)
-    
-    def actUponStateAttack(self, delta: int) -> None:
-        self.attackWaitTimer -= delta
-        if self.attackWaitTimer <= 0:
-            self.attackWaitTimer = SLIME_ATTACKSPEED
-            attackProjectile = SlimeAttackSlash(self.targetCoord)
-            attackProjectile.passPlayerReference(self.player)
-            self.projectiles.append(attackProjectile)
-            self.commitedToAttack = False
-            distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
-            if distanceToPlayer <= SLIME_ATTACK_RADIUS:
-                self.lockTarget()
-    
-    def lockTarget(self) -> None:
-        self.targetCoord = self.player.getCenter()
-        warnProjectile = SlimeAttackWarn(self.targetCoord)
-        self.projectiles.append(warnProjectile)
-        self.commitedToAttack = True
+        if self.directionFacing == DirectionEnum.UP:
+            self.setSpriteGivenDirection(self.up)
+        elif self.directionFacing == DirectionEnum.LEFT:
+            self.setSpriteGivenDirection(self.left)
+        elif self.directionFacing == DirectionEnum.RIGHT:
+            self.setSpriteGivenDirection(self.right)
+        else: self.setSpriteGivenDirection(self.down)
+        super().update(delta, map, objects)
+
+        if self.directionFacing == DirectionEnum.UP:
+            self.move_by(0, -SPEED * delta, map, True)
+        elif self.directionFacing == DirectionEnum.DOWN:
+            self.move_by(0, SPEED * delta, map, True)
+        elif self.directionFacing == DirectionEnum.LEFT:
+            self.move_by(-SPEED * delta, 0, map, True)
+        elif self.directionFacing == DirectionEnum.RIGHT:
+            self.move_by(SPEED * delta, 0, map, True)
+        
+
+        self.mob_counter -= delta
+        if self.mob_counter <= 0:
+            self.mob_counter = MOB_SUM 
+            if self.room != None:
+                from objects.enemy.enemy_summoner import EnemySummoner
+                from objects.enemy.slime import Slime
+                from objects.enemy.bat import Bat
+                x = random.randint(2, 16)
+                y = random.randint(3, 7)
+                sum = EnemySummoner(pygame.Vector2(
+                    x * TILE_SCALE, y * TILE_SCALE), self.player)
+                sum.go(self.room, random.choice([[Bat],[Slime]]))
+                self.room.objects.append(sum)
+
+            
+        self.progress -= delta
+        if self.progress <= 0: 
+            self.hit_player = False
+            self.progress = FLY
+            
+            directionFacings = [DirectionEnum.UP, DirectionEnum.DOWN,
+                               DirectionEnum.LEFT, DirectionEnum.RIGHT]
+            directionfacing = self.directionFacing
+            while directionfacing == self.directionFacing:
+                directionfacing = random.choice(directionFacings)
+            self.directionFacing = directionfacing
+
+            if self.directionFacing == DirectionEnum.DOWN:
+                self.move_to_force(random.randint(3 * TILE_SCALE, 15 * TILE_SCALE), 
+                                   -6 * TILE_SCALE)
+            elif self.directionFacing == DirectionEnum.LEFT:
+                self.move_to_force(21 * TILE_SCALE,
+                                   random.randint(-4 * TILE_SCALE, 6 * TILE_SCALE))
+                self.progress *= 1.5
+            elif self.directionFacing == DirectionEnum.RIGHT:
+                self.move_to_force(-4 * TILE_SCALE,
+                                   random.randint(4 * TILE_SCALE, 6 * TILE_SCALE))
+                self.progress *= 1.5
+            else: 
+                self.move_to_force(random.randint(3 * TILE_SCALE, 15 * TILE_SCALE),
+                                   12 * TILE_SCALE)
+
+        if self.hit_player: return
+        if self.hitbox.colliderect(self.player.hitbox):
+            self.player.takeDamage(1)
+            self.hit_player = True
     
     def onHit(self, damage: float, attack_id: int) -> None:
         super().onHit(damage, attack_id)
-    
-    def spawnCoins(self):
-        self.isWaitingOnCoinSpawn = True
 
-    def changeState(self) -> None:
-        distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
-        if self.state == EnemyStateEnum.IDLE:
-            if distanceToPlayer <= SLIME_AGGRESSION_RADIUS:
-                self.state = EnemyStateEnum.PURSUIT
-        elif self.state == EnemyStateEnum.PURSUIT:
-            if distanceToPlayer >= SLIME_PEACE_RADIUS:
-                self.state = EnemyStateEnum.IDLE
-            elif distanceToPlayer <= SLIME_ATTACK_RADIUS:
-                self.state = EnemyStateEnum.ATTACK
-                self.attackWaitTimer = SLIME_ATTACKSPEED
-                self.lockTarget()
-        elif self.state == EnemyStateEnum.ATTACK and not self.commitedToAttack:
-            if distanceToPlayer > SLIME_ATTACK_RADIUS:
-                self.state = EnemyStateEnum.PURSUIT
-
-
-class SlimeAttackSlash(Projectile):
-    def __init__(self, playerCenter: pygame.Vector2) -> None:
-        super().__init__()
-        self.size = (24, 32)
-        self.hitboxSize = (24, 32)
-        self.canDoDamage = True
-
-        self.sprite = pygame.image.load("Assets\\TempAttackAnim.png").convert_alpha()
-        self.sprite = pygame.transform.scale(self.sprite, self.size)
-        self.hitbox = pygame.Rect(0, 0, self.hitboxSize[0], self.hitboxSize[1])
-        self.pos = playerCenter - pygame.Vector2(self.size[0], self.size[1]) / 2
-
-        self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
-        self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
-    
-    def update(self, delta: int, map: Map, objects: list[Object]) -> None:
-        self.lifetime -= delta
-        if self.hitbox.colliderect(self.player.hitbox) and self.canDoDamage:
-            self.player.takeDamage(1)
-            self.canDoDamage = False
-
-    def passPlayerReference(self, player: "Knight") -> None:
-        self.player = player
-    
     def draw(self, display: pygame.Surface) -> None:
-        # if __debug__: pygame.draw.rect(display, (0, 255, 255), self.hitbox)
-        display.blit(self.sprite, self.pos)
-
-class SlimeAttackWarn(Projectile):
-    def __init__(self, playerCenter: pygame.Vector2) -> None:
-        super().__init__()
-        self.size = (24, 32)
-        self.hitboxSize = (24, 32)
-        self.canDoDamage = True
-
-        self.sprite = pygame.image.load("Assets\\AttackWarn.png").convert_alpha()
-        self.sprite = pygame.transform.scale(self.sprite, self.size)
-        self.hitbox = pygame.Rect(0, 0, self.hitboxSize[0], self.hitboxSize[1])
-        self.pos = playerCenter - pygame.Vector2(self.size[0], self.size[1]) / 2
-        self.lifetime = 400
-        self.visible = True
-
-        self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
-        self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
+        pygame.draw.rect(display, (255, 0, 0), self.hitbox) 
+        super().draw(display)
+        health_surface = pygame.Surface((1010, 30))
+        health_surface.fill((0, 0, 0))
+        health_amount = pygame.Surface(((self.health / HEALTH) * 1000, 20))
+        health_amount.fill((255, 0, 0))
+        display.blit(
+            health_surface, (SIZE[0] // 2 - health_surface.get_width() // 2, 40)
+        )
+        display.blit(
+            health_amount, (SIZE[0] // 2 - health_amount.get_width() // 2, 40)
+        )
     
-    def update(self, delta, map: Map, objects: list[Object]) -> None:
-        self.lifetime -= delta
-        self.visible = (int)((self.lifetime * FLASH_FREQUENCY) / 100) % 2 == 0
-        
-    def draw(self, display: pygame.Surface) -> None:
-        if not self.visible:
-            return
-        display.blit(self.sprite, self.pos)

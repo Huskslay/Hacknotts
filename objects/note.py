@@ -26,6 +26,7 @@ class NoteEnum(Enum):
 class Note(Object):
     
     def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None]) -> None:
+        self.hitbox_offset = (0, 0)
         super().__init__()
         self.spritemain = pygame.image.load("Assets\\NoteUI.png")
         self.spritemain = pygame.transform.scale(self.spritemain, (650, 650))

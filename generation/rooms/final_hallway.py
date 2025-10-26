@@ -14,7 +14,7 @@ PROMPT_LOCATION = (50, -18)
 class FinalHallway(Room):
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
         super().__init__(tilemaps, disable_transitions, knight)
-        self.hole = Hole(18, 5, TILE_SCALE, tilemaps.get_map("hole"), knight)
+        self.hole = Hole(18-16, 5, TILE_SCALE, tilemaps.get_map("hole"), knight)
         self.laddder = Ladder(1, 5, TILE_SCALE, tilemaps.get_map("ladder"), knight)
         
         
