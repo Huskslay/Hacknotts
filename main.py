@@ -15,6 +15,7 @@ from generation.generation import Generation
 from objects.HealthBar import HealthBar
 from objects.DeathScreen import DeathScreen
 from objects.Shopkeeper import Shopkeeper
+from objects.coin import Coin
 
 def main():
     clock = pygame.time.Clock()
@@ -32,7 +33,13 @@ def main():
     healthBar = HealthBar(display)
     healthBar.passPlayerReference(player)
 
+    for n in range(1, 30):
+        c1 = Coin(pygame.Vector2(600, 400))
+        c1.passPlayerReference(player)
+        objects.append(c1)
+
     objects.append(player)
+    
 
     shopkeeper = Shopkeeper(pygame.Vector2(500, 300))
     shopkeeper.passPlayerReference(player)

@@ -101,7 +101,11 @@ class Shopkeeper(Object):
         self.handleInteractions(delta)
     
     def checkIfHasEnoughMoney(self) -> bool:
-        return True
+        if self.player.coins >= 20:
+            self.player.coins -= 20
+            return True
+        else:
+            return False
     
     def handleInteractions(self, delta):
         keys = pygame.key.get_pressed()

@@ -59,6 +59,7 @@ class Knight(Object):
         self.currentSprite = 0
         self.maxHealth = 6
         self.currentHealth = 4
+        self.coins = 0
         self.damageCooldown = 0
         self.attacking = False
         self.attackTimer = 0
@@ -100,6 +101,9 @@ class Knight(Object):
     
     def onPotionDrink(self):
         self.currentHealth = self.maxHealth
+    
+    def addCoins(self, coins: int):
+        self.coins += coins
 
     def startAttackSequence(self):
         if not self.attacking:
