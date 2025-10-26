@@ -33,7 +33,7 @@ def main():
     healthBar = HealthAndCoinBar(display)
     healthBar.passPlayerReference(player)
 
-    for n in range(1, 30):
+    for n in range(0, 100):
         c1 = Coin(pygame.Vector2(600, 400))
         c1.passPlayerReference(player)
         objects.append(c1)

@@ -10,6 +10,9 @@ COIN_RENDER_POS = (5, 50)
 AMPLITUDE = 2
 SPEED_FACTOR = 100.0 
 STEP = 2
+COIN_SPACING = 6
+LINE_SPACING = 10
+LINE_LENGTH = 20
 
 class HealthAndCoinBar():
     def __init__(self, display: pygame.Surface) -> None:
@@ -31,7 +34,7 @@ class HealthAndCoinBar():
         self.display.blit(healthSprite, self.position)
         for n in range(0, self.player.coins):
             yOffset = AMPLITUDE * math.sin((self.totalTime / SPEED_FACTOR) + (n * STEP))
-            self.display.blit(self.coinSprite, (COIN_RENDER_POS[0] + n * 6, COIN_RENDER_POS[1] + yOffset))
+            self.display.blit(self.coinSprite, (COIN_RENDER_POS[0] + ((n * COIN_SPACING) % (LINE_LENGTH * COIN_SPACING)), COIN_RENDER_POS[1] + yOffset + (int)((n * COIN_SPACING) / (LINE_LENGTH * COIN_SPACING)) * LINE_SPACING))
 
     def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
