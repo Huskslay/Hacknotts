@@ -1,6 +1,7 @@
 import pygame
 from enum import Enum
 from typing import TYPE_CHECKING, Union
+import random
 
 if TYPE_CHECKING:
     from objects.knight import Knight
@@ -51,6 +52,7 @@ class Enemy(Object):
         self.health -= damage
         if self.health <= 0:
             self.alive = False
+            self.spawnCoins()
         else:
             self.recoilVelocity = (self.getCenter() - self.player.getCenter()).normalize() * self.recoilAmount
 
@@ -83,6 +85,9 @@ class Enemy(Object):
             elif angle >= 135 or angle <= -135:
                 return DirectionEnum.LEFT
             return DirectionEnum.DOWN
+    
+    def spawnCoins(self):
+        pass
     
     def getCenter(self) -> pygame.Vector2:
         xComponent = self.pos[0] + self.size[0] / 2

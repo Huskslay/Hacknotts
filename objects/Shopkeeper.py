@@ -109,8 +109,8 @@ class Shopkeeper(Object):
         self.handleInteractions(delta)
     
     def checkIfHasEnoughMoney(self) -> bool:
-        if self.player.coins >= 20:
-            self.player.coins -= 20
+        if self.player.coins >= 50:
+            self.player.coins -= 50
             return True
         else:
             return False
