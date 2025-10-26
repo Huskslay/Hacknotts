@@ -31,7 +31,8 @@ class Map:
 
         self.boss_entry_room = self.random_edge_coord(MAP_SIZE)
         chest_rooms: list[tuple[int, int]] = []
-        while len(chest_rooms) < CHEST_ROOMS:
+        chest_room_count = randint(CHEST_ROOMS[0], CHEST_ROOMS[1])
+        while len(chest_rooms) < chest_room_count:
             pos = (randint(0, MAP_SIZE), randint(0, MAP_SIZE))
             if pos[0] == MAP_SIZE // 2 and pos[1] == MAP_SIZE // 2 or \
                 pos == self.boss_entry_room or pos in self.rooms: continue 
@@ -64,7 +65,20 @@ class Map:
                     self.rooms[-1].append(ShopkeepersRoom(tilemaps, disable_transitions, knight))
                 else: self.rooms[-1].append(CombatRoom(tilemaps, disable_transitions, knight))
 
-        self.rooms[MAP_SIZE // 2][MAP_SIZE // 2] = BossEntryRoom(tilemaps, [], knight)
+        for y in range(MAP_SIZE):
+            for x in range(MAP_SIZE):
+                transitionLayer = self.rooms[y][x].transition_layer
+                if y > 0 and transitionLayer.transition_at_dir(TransitionDirEnum.LEFT) is None:
+                    self.rooms[y-1][x].transition_layer.remove_transition_at_dir(TransitionDirEnum.RIGHT)
+                if x > 0 and transitionLayer.transition_at_dir(TransitionDirEnum.UP) is None:
+                    self.rooms[y][x-1].transition_layer.remove_transition_at_dir(TransitionDirEnum.DOWN)
+                if y < MAP_SIZE - 1 and transitionLayer.transition_at_dir(TransitionDirEnum.RIGHT) is None:
+                    self.rooms[y+1][x].transition_layer.remove_transition_at_dir(TransitionDirEnum.LEFT)
+                if x < MAP_SIZE - 1 and transitionLayer.transition_at_dir(TransitionDirEnum.DOWN) is None:
+                    self.rooms[y][x+1].transition_layer.remove_transition_at_dir(TransitionDirEnum.UP)
+
+
+        self.rooms[MAP_SIZE // 2][MAP_SIZE // 2] = StartRoom(tilemaps, [], knight)
         self.room = (MAP_SIZE // 2, MAP_SIZE // 2)
 
     def random_edge_coord(self, width: int = 10) -> tuple[int, int]:
@@ -93,19 +107,27 @@ class Map:
         match (transitionDir):
             case TransitionDirEnum.LEFT:
                 self.room = (self.room[0] - 1, self.room[1])
-                pos = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.RIGHT).pos
+                transition = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.RIGHT)
+                if transition is None: pos = pygame.Vector2(10, 5)
+                else: pos = transition.pos
                 knight.move_to_force(pos.x * TILE_SCALE - TILE_SCALE, pos.y * TILE_SCALE)
             case TransitionDirEnum.UP: 
                 self.room = (self.room[0], self.room[1] - 1)
-                pos = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.DOWN).pos
+                transition = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.DOWN)
+                if transition is None: pos = pygame.Vector2(10, 5)
+                else: pos = transition.pos
                 knight.move_to_force(pos.x * TILE_SCALE, pos.y * TILE_SCALE - TILE_SCALE)
             case TransitionDirEnum.DOWN:
                 self.room = (self.room[0], self.room[1] + 1)
-                pos = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.UP).pos
+                transition = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.UP)
+                if transition is None: pos = pygame.Vector2(10, 5)
+                else: pos = transition.pos
                 knight.move_to_force(pos.x * TILE_SCALE, pos.y * TILE_SCALE + TILE_SCALE)
             case TransitionDirEnum.RIGHT: 
                 self.room = (self.room[0] + 1, self.room[1])
-                pos = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.LEFT).pos
+                transition = self.get_room().transition_layer.transition_at_dir(TransitionDirEnum.LEFT)
+                if transition is None: pos = pygame.Vector2(10, 5)
+                else: pos = transition.pos
                 knight.move_to_force(pos.x * TILE_SCALE + TILE_SCALE, pos.y * TILE_SCALE)
 
     def transition_to_final_hallway(self, knight: "Knight") -> None:
@@ -116,10 +138,8 @@ class Map:
         self.room = (self.boss_entry_room[1], self.boss_entry_room[0])
         room = self.get_room()
         if isinstance(room, BossEntryRoom):
-            pos = room.trapdoor.pos
-        else:
-            pos = room.transition_layer.transition_at_dir(TransitionDirEnum.LEFT).pos \
-                    + pygame.Vector2(1, 0)
+            pos = room.trapdoor.pos + pygame.Vector2(2, 0)
+        else: pos = pygame.Vector2(10, 5)
         knight.move_to_force(pos.x * TILE_SCALE, pos.y * TILE_SCALE + TILE_SCALE)
 
     def transition_to_final_boss(self, knight: "Knight") -> None:

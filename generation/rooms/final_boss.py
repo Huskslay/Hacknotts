@@ -1,5 +1,5 @@
 import pygame
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Type, Union
 
 if TYPE_CHECKING:
     from objects.enemy.enemy import Enemy
@@ -15,23 +15,27 @@ class FinalBoss(Room):
         super().__init__(tilemaps, disable_transitions, knight)
         
         from objects.enemy.slime import Slime
+        from objects.enemy.bat import Bat
+        from objects.enemy.dragon import Dragon
         
         self.phases: list[list[tuple[list[Type[Enemy]], int, int]]] = [
             [  # Phase 2
                 ([Slime, Slime, Slime], 5, 5),
             ],
             [  # Phase 2
-                ([Slime, Slime, Slime, Slime], 5, 5),
-                ([Slime, Slime], 10, 5),
+                ([Slime, Slime, Bat, Bat], 5, 5),
+                ([Slime, Slime, Bat, Bat], 10, 5),
             ],
             [  # Phase 3
-                ([Slime, Slime, Slime, Slime, Slime], 5, 5),
-                ([Slime, Slime, Slime], 10, 5),
-                ([Slime, Slime, Slime], 15, 5),
+                ([Bat, Slime, Bat, Slime, Bat], 5, 5),
+                ([Slime, Bat, Slime, Bat, Slime], 10, 5),
+                ([Bat, Slime, Bat, Slime, Bat], 15, 5),
+                ([Slime, Bat, Slime, Bat, Slime], 20, 5),
             ],
         ]
         self.phase = 0
         self.knight = knight
+        self.dragon: Union[Dragon, None] = None
 
         self.summon_next_phase()
         
@@ -96,22 +100,28 @@ class FinalBoss(Room):
             self.objects.append(sum)
 
     def summon_boss(self) -> None:
-        
-        pass
+        from objects.enemy.dragon import Dragon
+        self.dragon = Dragon(pygame.Vector2(10 * TILE_SCALE, 5 * TILE_SCALE), self.knight)
+        self.objects.append(self.dragon)
 
 
     def draw(self, display: pygame.Surface) -> None:   
-        from objects.enemy.enemy import Enemy 
-        i = 0
-        passed = True
-        while i < len(self.objects):
-            object = self.objects[i]
-            if isinstance(object, Enemy):
-                if not object.alive:
-                    self.objects.pop(i)
-                else: 
-                    passed = False
-                    i += 1
-        if passed: self.summon_next_phase()
+
+        if self.dragon != None:
+            if not self.dragon.alive:
+                print("Dragon defeated!")
+        else:
+            from objects.enemy.enemy import Enemy 
+            i = 0
+            passed = True
+            while i < len(self.objects):
+                object = self.objects[i]
+                if isinstance(object, Enemy):
+                    if not object.alive:
+                        self.objects.pop(i)
+                    else: 
+                        passed = False
+                        i += 1
+            if passed: self.summon_next_phase()
 
         super().draw(display)

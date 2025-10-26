@@ -1,6 +1,6 @@
 import pygame
 from random import randint
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from objects.object import Object
@@ -127,10 +127,18 @@ class TransitionLayer(Layer):
             if transition.pos.x == x and transition.pos.y == y: return True
         return False
 
-    def transition_at_dir(self, dir: TransitionDirEnum) -> "Transition":
+    def transition_at_dir(self, dir: TransitionDirEnum) -> Union["Transition", None]:
         for transition in self.transitions:
             if transition.dir == dir: return transition
-        return self.transitions[0]
+        return None
+    
+    def remove_transition_at_dir(self, dir: TransitionDirEnum) -> None:
+        i = 0
+        while i < len(self.transitions):
+            if self.transitions[i].dir == dir:
+                self.transitions.pop(i)
+            else:
+                i += 1
 
     def draw(self, display: pygame.Surface) -> None:
         for transition in self.transitions:

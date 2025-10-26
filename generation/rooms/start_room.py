@@ -2,7 +2,7 @@ import pygame
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from objects.enemy.enemy import Enemy
+    from objects.object import Object
     from objects.knight import Knight
 
 from generation.rooms.room import Room, Transition, SpriteLayer, Tilemaps, Chest
@@ -11,6 +11,7 @@ from variables import TransitionDirEnum, TileEnum
 class StartRoom(Room):
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
         super().__init__(tilemaps, disable_transitions, knight)
+        self.collision_rects.append(self.note.hitbox)
         
     def make_empty_layout(self) -> list[list[list[TileEnum]]]:
         layout: list[list[list[TileEnum]]] = []
@@ -42,6 +43,11 @@ class StartRoom(Room):
 
         return layout
     
+    def make_objects(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Object"]: 
+        from objects.note import Note
+        self.note = Note(pygame.Vector2(580, 345), knight)
+        return [self.note]
+
     def make_chests(self, size: int) -> list["Chest"]:
         return []
     

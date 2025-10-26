@@ -92,5 +92,5 @@ class EnemySummoner(Enemy):
         if not self.active: return
         return super().draw(display)
     
-    def onHit(self, damage: int, attack_id: int) -> None:
+    def onHit(self, damage: float, attack_id: int) -> None:
         return

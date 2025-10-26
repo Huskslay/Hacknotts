@@ -16,8 +16,8 @@ SLIME_ATTACKSPEED = 700 ## Wait time in ms
 PROJECTILE_WARN_TIME = 400
 FLASH_FREQUENCY = 1
 
-SLIME_AGGRESSION_RADIUS = 200
-SLIME_PEACE_RADIUS = 250
+SLIME_AGGRESSION_RADIUS = 800
+SLIME_PEACE_RADIUS = 850
 SLIME_ATTACK_RADIUS = 60
 
 SLIME_FIRST_FRAME_DOWN = 0
@@ -26,7 +26,7 @@ SLIME_IDLE_FRAME_RIGHT = 8
 SLIME_FIRST_FRAME_UP = 12
 SLIMEIDLEFRAMES = 4
 SLIME_SPEED = 0.14
-SLIME_HEALTH = 3
+SLIME_HEALTH = 6
 SLIME_RECOIL_AMOUNT = 0.35
 
 XSPRITES = 4
@@ -79,7 +79,7 @@ class Slime(Enemy):
         super().update(delta, map, objects)
         if self.isWaitingOnCoinSpawn:
             self.isWaitingOnCoinSpawn = False
-            for _ in range(0, random.randint(5, 12)):
+            for _ in range(0, random.randint(6, 8)):
                 coin = Coin(self.pos)
                 coin.passPlayerReference(self.player)
                 objects.append(coin)
@@ -171,7 +171,7 @@ class SlimeAttackSlash(Projectile):
         self.player = player
     
     def draw(self, display: pygame.Surface) -> None:
-        if __debug__: pygame.draw.rect(display, (0, 255, 255), self.hitbox)
+        # if __debug__: pygame.draw.rect(display, (0, 255, 255), self.hitbox)
         display.blit(self.sprite, self.pos)
 
 class SlimeAttackWarn(Projectile):

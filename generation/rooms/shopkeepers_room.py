@@ -14,6 +14,7 @@ from variables import TileEnum, TransitionDirEnum, TRY_SPAWN_CHESTS
 class ShopkeepersRoom(Room):
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
         super().__init__(tilemaps, disable_transitions, knight)
+        self.collision_rects.append(self.shopkeeper.hitbox)
         
     def make_empty_layout(self) -> list[list[list[TileEnum]]]:
         layout: list[list[list[TileEnum]]] = []
@@ -50,7 +51,8 @@ class ShopkeepersRoom(Room):
     
     def make_objects(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Object"]:  
         from objects.Shopkeeper import Shopkeeper
-        return [Shopkeeper(pygame.Vector2(500, 300), knight)]
+        self.shopkeeper = Shopkeeper(pygame.Vector2(500, 300), knight)
+        return [self.shopkeeper]
     
     def get_transitions(self, size: int, disable_transitions: list[TransitionDirEnum]) -> list[Transition]:
         transitions = [Transition(3, 5, TransitionDirEnum.LEFT, size), 

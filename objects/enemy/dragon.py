@@ -12,32 +12,27 @@ from objects.enemy.enemy import Enemy, EnemyStateEnum, DirectionEnum, Projectile
 from objects.coin import Coin
 
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
-ATTACKSPEED = 700 ## Wait time in ms 
+SLIME_ATTACKSPEED = 700 ## Wait time in ms 
 PROJECTILE_WARN_TIME = 400
 FLASH_FREQUENCY = 1
 
-BAT_AGGRESSION_RADIUS = 800
-BAT_PEACE_RADIUS = 850
-BAT_ATTACK_RADIUS = 60
+SLIME_AGGRESSION_RADIUS = 200
+SLIME_PEACE_RADIUS = 250
+SLIME_ATTACK_RADIUS = 60
 
-BAT_FIRST_FRAME_DOWN = 6
-BAT_IDLE_FRAME_LEFT = 3
-BAT_IDLE_FRAME_RIGHT = 9
-BAT_FIRST_FRAME_UP = 0
-BATIDLEFRAMES = 3
-BAT_FIRST_FRAME_DOWN_ATTACK = 16
-BAT_IDLE_FRAME_LEFT_ATTACK = 14
-BAT_IDLE_FRAME_RIGHT_ATTACK = 18
-BAT_FIRST_FRAME_UP_ATTACK = 12
-BATATTACKFRAMES = 2
-BAT_SPEED = 0.30
-BAT_HEALTH = 4
-BAT_RECOIL_AMOUNT = 1.2
+SLIME_FIRST_FRAME_DOWN = 0
+SLIME_IDLE_FRAME_LEFT = 4
+SLIME_IDLE_FRAME_RIGHT = 8
+SLIME_FIRST_FRAME_UP = 12
+SLIMEIDLEFRAMES = 4
+SLIME_SPEED = 0.14
+SLIME_HEALTH = 6
+SLIME_RECOIL_AMOUNT = 0.35
 
-XSPRITES = 3
-YSPRITES = 7
+XSPRITES = 4
+YSPRITES = 8
 
-class Bat(Enemy):
+class Dragon(Enemy):
     def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None] = None) -> None:
         self.spriteChangeWaitTimer = ANIMSPEED
         super().__init__(pos, knight)
@@ -47,33 +42,23 @@ class Bat(Enemy):
         self.hitboxSize = (30, 30)
         self.hitbox = pygame.Rect(1, 1, self.hitboxSize[0], self.hitboxSize[1])
         self.move_to_force(pos.x, pos.y)
-        self.initialiseSprites("Assets\\BatSprites.png", XSPRITES, YSPRITES, self.spriteSize)
-        self.health = BAT_HEALTH
-        self.recoilAmount = BAT_RECOIL_AMOUNT
+        self.initialiseSprites("Assets\\Slimesheet.png", XSPRITES, YSPRITES, self.spriteSize)
+        self.health = SLIME_HEALTH
+        self.recoilAmount = SLIME_RECOIL_AMOUNT
 
     def initialiseSprites(self, spritesheetPath: str, xSprites: int, ySprites: int, spriteSize: tuple[int, int]) -> None:
         super().initialiseSprites(spritesheetPath, xSprites, ySprites, spriteSize)
     
     def setSprite(self, delta: int) -> None:
         self.spriteChangeWaitTimer -= delta
-        if self.state == EnemyStateEnum.IDLE:
-            if self.directionFacing == DirectionEnum.DOWN:
-                self.setSpriteGivenDirection(BAT_FIRST_FRAME_DOWN, BATIDLEFRAMES)
-            elif self.directionFacing == DirectionEnum.UP:
-                self.setSpriteGivenDirection(BAT_FIRST_FRAME_UP, BATIDLEFRAMES)
-            elif self.directionFacing == DirectionEnum.LEFT:
-                self.setSpriteGivenDirection(BAT_IDLE_FRAME_LEFT, BATIDLEFRAMES)
-            elif self.directionFacing == DirectionEnum.RIGHT:
-                self.setSpriteGivenDirection(BAT_IDLE_FRAME_RIGHT, BATIDLEFRAMES)
-        else:
-            if self.directionFacing == DirectionEnum.DOWN:
-                self.setSpriteGivenDirection(BAT_FIRST_FRAME_DOWN_ATTACK, BATATTACKFRAMES)
-            elif self.directionFacing == DirectionEnum.UP:
-                self.setSpriteGivenDirection(BAT_FIRST_FRAME_UP_ATTACK, BATATTACKFRAMES)
-            elif self.directionFacing == DirectionEnum.LEFT:
-                self.setSpriteGivenDirection(BAT_IDLE_FRAME_LEFT_ATTACK, BATATTACKFRAMES)
-            elif self.directionFacing == DirectionEnum.RIGHT:
-                self.setSpriteGivenDirection(BAT_IDLE_FRAME_RIGHT_ATTACK, BATATTACKFRAMES)
+        if self.directionFacing == DirectionEnum.DOWN:
+            self.setSpriteGivenDirection(SLIME_FIRST_FRAME_DOWN, SLIMEIDLEFRAMES)
+        elif self.directionFacing == DirectionEnum.UP:
+            self.setSpriteGivenDirection(SLIME_FIRST_FRAME_UP, SLIMEIDLEFRAMES)
+        elif self.directionFacing == DirectionEnum.LEFT:
+            self.setSpriteGivenDirection(SLIME_IDLE_FRAME_LEFT, SLIMEIDLEFRAMES)
+        elif self.directionFacing == DirectionEnum.RIGHT:
+            self.setSpriteGivenDirection(SLIME_IDLE_FRAME_RIGHT, SLIMEIDLEFRAMES)
         self.sprite = self.spriteList[self.currentSprite]
     
     def setSpriteGivenDirection(self, firstFrame: int, frames: int) -> None:
@@ -94,12 +79,11 @@ class Bat(Enemy):
         super().update(delta, map, objects)
         if self.isWaitingOnCoinSpawn:
             self.isWaitingOnCoinSpawn = False
-            for _ in range(0, random.randint(8, 12)):
+            for _ in range(0, random.randint(5, 12)):
                 coin = Coin(self.pos)
                 coin.passPlayerReference(self.player)
                 objects.append(coin)
 
-        start = self.pos.copy()
         if self.recoilVelocity.length() > 0:
             self.move_by(self.recoilVelocity.x * delta, self.recoilVelocity.y * delta, map)
             self.recoilVelocity *= 0.9
@@ -118,19 +102,19 @@ class Bat(Enemy):
             directionToPlayer = pygame.Vector2(0, 0)
         else:
             directionToPlayer = toPlayerVector.normalize()
-        self.move_by(directionToPlayer.x * BAT_SPEED * delta , directionToPlayer.y * BAT_SPEED * delta, map)
+        self.move_by(directionToPlayer.x * SLIME_SPEED * delta , directionToPlayer.y * SLIME_SPEED * delta, map)
         self.directionFacing = self.getFacingDirection(directionToPlayer)
     
     def actUponStateAttack(self, delta: int) -> None:
         self.attackWaitTimer -= delta
         if self.attackWaitTimer <= 0:
-            self.attackWaitTimer = ATTACKSPEED
+            self.attackWaitTimer = SLIME_ATTACKSPEED
             attackProjectile = SlimeAttackSlash(self.targetCoord)
             attackProjectile.passPlayerReference(self.player)
             self.projectiles.append(attackProjectile)
             self.commitedToAttack = False
             distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
-            if distanceToPlayer <= BAT_ATTACK_RADIUS:
+            if distanceToPlayer <= SLIME_ATTACK_RADIUS:
                 self.lockTarget()
     
     def lockTarget(self) -> None:
@@ -148,17 +132,17 @@ class Bat(Enemy):
     def changeState(self) -> None:
         distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
         if self.state == EnemyStateEnum.IDLE:
-            if distanceToPlayer <= BAT_AGGRESSION_RADIUS:
+            if distanceToPlayer <= SLIME_AGGRESSION_RADIUS:
                 self.state = EnemyStateEnum.PURSUIT
         elif self.state == EnemyStateEnum.PURSUIT:
-            if distanceToPlayer >= BAT_PEACE_RADIUS:
+            if distanceToPlayer >= SLIME_PEACE_RADIUS:
                 self.state = EnemyStateEnum.IDLE
-            elif distanceToPlayer <= BAT_ATTACK_RADIUS:
+            elif distanceToPlayer <= SLIME_ATTACK_RADIUS:
                 self.state = EnemyStateEnum.ATTACK
-                self.attackWaitTimer = ATTACKSPEED
+                self.attackWaitTimer = SLIME_ATTACKSPEED
                 self.lockTarget()
         elif self.state == EnemyStateEnum.ATTACK and not self.commitedToAttack:
-            if distanceToPlayer > BAT_ATTACK_RADIUS:
+            if distanceToPlayer > SLIME_ATTACK_RADIUS:
                 self.state = EnemyStateEnum.PURSUIT
 
 

@@ -48,7 +48,9 @@ class ChestRoom(Room):
     def make_chests(self, size: int) -> list["Chest"]:
         made_chests: list[tuple[int, int]] = []
         chests: list[Chest] = []
-        for _ in range(TRY_SPAWN_CHESTS):
+        
+        try_spawn_chests_count = randint(TRY_SPAWN_CHESTS[0], TRY_SPAWN_CHESTS[1])
+        for _ in range(try_spawn_chests_count):
             pos = (randint(self.room[0], self.room[2]), randint(self.room[1], self.room[3]))
             if pos in made_chests or pos[0] == self.room[0] or pos[1] == self.room[1] or \
                pos[0] == self.room[2] or pos[1] == self.room[3]: continue

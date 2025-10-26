@@ -1,8 +1,9 @@
-import pygame
+import pygame, random
 from enum import Enum
 from objects.object import Object
 from objects.enemy.enemy import Enemy
 from generation.map import Map
+from variables import TILE_SCALE
 
 ## pee pee poo poo
 
@@ -117,11 +118,12 @@ class Knight(Object):
         self.setFacingDirection(movementVector)
         self.setAnimState(movementVector)
         self.setSprite(delta)
-        self.chests(map)
+        self.chests(map, objects)
         self.transitions(map)
     
     def onPotionDrink(self) -> None:
         self.currentHealth = self.maxHealth
+        self.potionStacks += 1
     
     def addCoins(self, coins: int):
         self.coins += coins
@@ -133,10 +135,7 @@ class Knight(Object):
             self.attacking = True
         
     def getDamage(self) -> float:
-        if self.potionStacks == 0:
-            return 1
-        else:
-            return 1.2 ** self.potionStacks
+        return 1 + self.potionStacks
     
     def handleAttackState(self, delta: int, map: Map) -> None:
         self.attackTimer -= delta
@@ -256,11 +255,16 @@ class Knight(Object):
     def setAttackSprite(self, firstFrame: int, frames: int) -> None:
         self.currentSprite = firstFrame + (int) ((ATTACK_DURATION - self.attackTimer) / (ATTACK_DURATION / frames))
 
-    def chests(self, map: Map) -> None:
+    def chests(self, map: Map, objects: list[Object]) -> None:
         for chest in map.get_room().chests_layer.chests:
             if chest.opened: continue
             if self.hitbox.colliderect(chest.hitbox):
                 chest.opened = True
+                from objects.coin import Coin
+                for _ in range(0, random.randint(10, 14)):
+                    coin = Coin(chest.pos * TILE_SCALE)
+                    coin.passPlayerReference(self)
+                    objects.append(coin)
     def transitions(self, map: Map) -> None:
         for transition in map.get_room().transition_layer.transitions:
             if self.hitbox.colliderect(transition.hitbox):
@@ -268,8 +272,8 @@ class Knight(Object):
                 
 
     def draw(self, display: pygame.Surface) -> None:
-        if __debug__: 
-            pygame.draw.rect(display, (255, 0, 0), self.hitbox)
-            if self.attackHitboxRect != None:
-                pygame.draw.rect(display, (0, 255, 255), self.attackHitboxRect)
+        # if __debug__: 
+        #     pygame.draw.rect(display, (255, 0, 0), self.hitbox)
+        #     if self.attackHitboxRect != None:
+        #         pygame.draw.rect(display, (0, 255, 255), self.attackHitboxRect)
         display.blit(self.sprite, self.pos)

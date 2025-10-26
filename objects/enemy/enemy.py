@@ -9,6 +9,8 @@ if TYPE_CHECKING:
 from objects.object import Object
 from generation.map import Map
 
+SLEEP_TIME = 500
+
 class EnemyStateEnum(Enum):
     IDLE = 1
     PURSUIT = 2
@@ -39,6 +41,7 @@ class Enemy(Object):
         self.recoilVelocity = pygame.Vector2(0, 0)
         self.recoilAmount: float
         self.attack_immunity_id = 0
+        self.sleep = SLEEP_TIME
 
         if knight is not None: self.passPlayerReference(knight)
     
@@ -97,6 +100,11 @@ class Enemy(Object):
     def update(self, delta: int, map: Map, objects: list[Object]) -> None:
         self.deltaTotal += delta
         self.setSprite(delta)
+
+        if self.sleep > 0:
+            self.sleep -= delta
+            return
+
         self.handleStates(delta, map)
         for projectile in self.projectiles[:]:
             projectile.update(delta, map, objects)
@@ -110,7 +118,7 @@ class Enemy(Object):
         pass
 
     def draw(self, display: pygame.Surface) -> None:    
-        if __debug__: pygame.draw.rect(display, (255, 0, 0), self.hitbox)
+        # if __debug__: pygame.draw.rect(display, (255, 0, 0), self.hitbox)
 
         display.blit(self.sprite, self.pos)
         for projectile in self.projectiles:

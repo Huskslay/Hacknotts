@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 from generation.rooms.room import Room, SpriteLayer, Transition, Chest
 from generation.tilemap import Tilemaps
 
-from variables import TileEnum, TransitionDirEnum
+from variables import TileEnum, TransitionDirEnum, TILE_SCALE
 
 class CombatRoom(Room):
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
@@ -52,14 +52,18 @@ class CombatRoom(Room):
         from objects.enemy.slime import Slime
         from objects.enemy.bat import Bat
         enemies: list["Object"] = []
+        spawn_ranges = ((self.room[0] + 1) * TILE_SCALE, (self.room[1] + 1) * TILE_SCALE, 
+                        (self.room[2] - 1) * TILE_SCALE, (self.room[3] - 1) * TILE_SCALE)
         match random.randint(0, 2):
             case 0:
-                enemies: list["Object"] = [Slime(pygame.Vector2((random.randint(300, 500), random.randint(300, 500))), knight)]
+                enemies: list["Object"] = [Slime(self.random_spawn_pos(spawn_ranges), knight)]
             case 1:
-                enemies: list["Object"] = [Bat(pygame.Vector2((random.randint(300, 500), random.randint(300, 500))), knight)]
+                enemies: list["Object"] = [Bat(self.random_spawn_pos(spawn_ranges), knight)]
             case 2:
-                enemies: list["Object"] = [Slime(pygame.Vector2((random.randint(300, 500), random.randint(300, 500))), knight), Bat(pygame.Vector2((random.randint(300, 500), random.randint(300, 500))), knight)]
+                enemies: list["Object"] = [Slime(self.random_spawn_pos(spawn_ranges), knight), Bat(self.random_spawn_pos(spawn_ranges), knight)]
         return enemies
+    def random_spawn_pos(self, spawn_ranges: tuple[int, int, int, int]) -> pygame.Vector2:
+        return pygame.Vector2(random.randint(spawn_ranges[0], spawn_ranges[2]), random.randint(spawn_ranges[1], spawn_ranges[3]))
     
     def get_transitions(self, size: int, disable_transitions: list[TransitionDirEnum]) -> list[Transition]:
         transitions = [Transition(4, 5, TransitionDirEnum.LEFT, size), 

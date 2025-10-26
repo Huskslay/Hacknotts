@@ -59,6 +59,9 @@ class Shopkeeper(Object):
         
         if knight is not None: self.passPlayerReference(knight)
 
+        self.chest_sprite = pygame.image.load("Assets\\Environment\\Chests.png")
+        self.chest_sprite = pygame.transform.scale(self.chest_sprite.subsurface(pygame.Rect(0, 0, 32, 32)), (64, 64))
+
 
     def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
@@ -112,8 +115,7 @@ class Shopkeeper(Object):
         if self.player.coins >= 50:
             self.player.coins -= 50
             return True
-        else:
-            return False
+        else: return False
     
     def handleInteractions(self, delta: int) -> None:
         keys = pygame.key.get_pressed()
@@ -168,7 +170,8 @@ class Shopkeeper(Object):
                 self.sprite = self.animationListIdle[self.currentFrame]
 
     def draw(self, display: pygame.Surface) -> None:
-        display.blit(self.sprite, self.rect)
+        if self.state != ShopStateEnum.PURCHASED: display.blit(self.sprite, self.rect)
+        else: display.blit(self.chest_sprite, self.rect)
         if self.isPromptVisible:
             display.blit(self.promptSprites[self.currentPromptFrame], (self.rect.x + PROMPT_LOCATION[0], self.rect.y + PROMPT_LOCATION[1]))
         if self.inRangeOfPlayer():
@@ -185,4 +188,4 @@ class Shopkeeper(Object):
                 case ShopStateEnum.SPEAKING_DIALOGUE_4:
                     display.blit(self.speechBubbles[3], (self.rect.x + SPEECH_BUBBLE_OFFSETS[3][0], self.rect.y + SPEECH_BUBBLE_OFFSETS[3][1]))
                     display.blit(self.promptSprites[self.currentPromptFrame], (self.rect.x + SPEECH_BUBBLE_PROMPT[3][0], self.rect.y + SPEECH_BUBBLE_PROMPT[3][1]))
-        if __debug__:  pygame.draw.rect(display, (255, 0, 0), self.hitbox)
+        # if __debug__:  pygame.draw.rect(display, (255, 0, 0), self.hitbox)

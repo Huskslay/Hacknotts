@@ -45,6 +45,7 @@ class Note(Object):
         self.currentPromptFrame = 0
         self.deltaTotal = 0
         self.passPlayerReference(knight)
+        self.hitbox = pygame.Rect(self.rect.x, self.rect.y, self.scaledWidth, self.scaledHeight)
     
     def update(self, delta: int, map: "Map", objects: list[Object]):
         self.handlePromptAnim(delta)
@@ -114,7 +115,7 @@ class Note(Object):
         if self.state == NoteEnum.INTERACTING and self.inRangeOfPlayer():
             display.blit(self.spritemain, UIPOS)
             self.renderText("HI CHAT", (20, 20, 20), TEXTPOS, display)
-            self.renderTextSmall("Okay so the way you play the game is as follows: \n - Go around various rooms and kill enemies for gold!!\n - You can use gold to buy potions \n - Potions increase your attack multiplicatively :o \n... But beware.. any room can have the final boss!", (20, 20, 20), TEXTPOS2, display)
+            self.renderTextSmall("Okay so the way you play the game is as follows: \n - Wasd to move, space to attack \n - Go around various rooms and kill enemies for gold!!\n - You can use gold to buy potions from the 3 shops \n - Potions increase your attack :o \n... And any room can house the entrance...\n...to the final boss's lair!", (20, 20, 20), TEXTPOS2, display)
         elif self.state == NoteEnum.INTERACTING:
             self.state = NoteEnum.NOT_INTERACTING
         
