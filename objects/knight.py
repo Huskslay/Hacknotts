@@ -5,8 +5,6 @@ from objects.enemy.enemy import Enemy
 from generation.map import Map
 from variables import TILE_SCALE
 
-## pee pee poo poo
-
 ANIMSPEED = 120 ## Wait time in ms between sprite changes in anim
 MOVEMENT_SPEED = 0.02
 ATTACK_DURATION = 300 
@@ -45,7 +43,7 @@ class DirectionEnum(Enum):
 class Knight(Object):
     def __init__(self) -> None:
         self.hitbox_offset = (0, 0)
-        
+
         self.wait_timer = 3
         self.attack_id = 0
         self.to_final_hallway = False
