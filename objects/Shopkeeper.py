@@ -20,6 +20,8 @@ INTERACTABLE_DISTANCE = 75
 PROMPT_LOCATION = (50, -18)
 SPEECH_SCALE_DIV = 3
 SPEECH_BUBBLE_OFFSETS = [(-50, -20), (-65, -20), (-47, -20), (-30, -55)]
+SPEECH_BUBBLE_PROMPT = [(200, 0), (235, 0), (195, 0), (165, -5)]
+
 
 class ShopStateEnum(Enum):
     NOT_INTERACTED = 1
@@ -167,10 +169,14 @@ class Shopkeeper(Object):
             match self.state:
                 case ShopStateEnum.SPEAKING_DIALOGUE_1:
                     display.blit(self.speechBubbles[0], (self.rect.x + SPEECH_BUBBLE_OFFSETS[0][0], self.rect.y + SPEECH_BUBBLE_OFFSETS[0][1]))
+                    display.blit(self.promptSprites[self.currentPromptFrame], (self.rect.x + SPEECH_BUBBLE_PROMPT[0][0], self.rect.y + SPEECH_BUBBLE_PROMPT[0][1]))
                 case ShopStateEnum.SPEAKING_DIALOGUE_2:
                     display.blit(self.speechBubbles[1], (self.rect.x + SPEECH_BUBBLE_OFFSETS[1][0], self.rect.y + SPEECH_BUBBLE_OFFSETS[1][1]))
+                    display.blit(self.promptSprites[self.currentPromptFrame], (self.rect.x + SPEECH_BUBBLE_PROMPT[1][0], self.rect.y + SPEECH_BUBBLE_PROMPT[1][1]))
                 case ShopStateEnum.SPEAKING_DIALOGUE_3:
                     display.blit(self.speechBubbles[2], (self.rect.x + SPEECH_BUBBLE_OFFSETS[2][0], self.rect.y + SPEECH_BUBBLE_OFFSETS[2][1]))
+                    display.blit(self.promptSprites[self.currentPromptFrame], (self.rect.x + SPEECH_BUBBLE_PROMPT[2][0], self.rect.y + SPEECH_BUBBLE_PROMPT[2][1]))
                 case ShopStateEnum.SPEAKING_DIALOGUE_4:
                     display.blit(self.speechBubbles[3], (self.rect.x + SPEECH_BUBBLE_OFFSETS[3][0], self.rect.y + SPEECH_BUBBLE_OFFSETS[3][1]))
+                    display.blit(self.promptSprites[self.currentPromptFrame], (self.rect.x + SPEECH_BUBBLE_PROMPT[3][0], self.rect.y + SPEECH_BUBBLE_PROMPT[3][1]))
         # pygame.draw.rect(display, (255, 0, 0), self.hitbox)
