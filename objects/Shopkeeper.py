@@ -1,6 +1,12 @@
 import pygame
-from objects.object import Object
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from objects.knight import Knight
+    from generation.map import Map 
+
+from objects.object import Object
 
 SPRITESHEET_WIDTH = 124
 SPRITESHEET_HEIGHT = 70
@@ -25,7 +31,7 @@ class ShopStateEnum(Enum):
 
 class Shopkeeper(Object):
     
-    def __init__(self, pos: pygame.Vector2):
+    def __init__(self, pos: pygame.Vector2) -> None:
         super().__init__()
         
         self.spritesheet = pygame.image.load("Assets\\ShopSprites\\Shopkeeper.png").convert_alpha()
@@ -50,7 +56,7 @@ class Shopkeeper(Object):
         self.rect = self.sprite.get_rect(topleft=pos)
         self.hitbox = pygame.Rect(self.rect.x, self.rect.y + self.scaledHeight / 2, self.scaledWidth * SPRITEHITBOXOFFSET, self.scaledHeight / 2)
     
-    def passPlayerReference(self, player):
+    def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
 
     def getCenter(self) -> pygame.Vector2:
@@ -58,7 +64,7 @@ class Shopkeeper(Object):
         yComponent = self.rect[1] + self.scaledHeight / 2
         return pygame.Vector2(xComponent, yComponent)
 
-    def loadPromptSprites(self):
+    def loadPromptSprites(self) -> list[pygame.Surface]:
         sprite1 = pygame.image.load("Assets\\ShopSprites\\EkeyPrompt.png")
         sprite2 = sprite1.subsurface(pygame.Rect(11, 0, 11, 14))
         sprite1 = sprite1.subsurface(pygame.Rect(0, 0, 11, 14))
@@ -66,7 +72,7 @@ class Shopkeeper(Object):
         sprite2 = pygame.transform.scale(sprite2, (22, 28))
         return [sprite1, sprite2]
 
-    def loadSpeechSprites(self):
+    def loadSpeechSprites(self) -> list[pygame.Surface]:
         sprite1 = pygame.image.load("Assets\\ShopSprites\\Speech1.png")
         sprite2 = pygame.image.load("Assets\\ShopSprites\\Speech2.png")
         sprite3 = pygame.image.load("Assets\\ShopSprites\\Speech3.png")
@@ -78,7 +84,7 @@ class Shopkeeper(Object):
         return [sprite1, sprite2, sprite3, sprite4]
 
 
-    def loadSprites(self):
+    def loadSprites(self) -> tuple[list[pygame.Surface], list[pygame.Surface]]:
         animationListIdle = []
         animationListInteract = []
         for n in range(0, SPRITE_COLUMNS * SPRITE_ROWS):
@@ -93,7 +99,7 @@ class Shopkeeper(Object):
                 animationListInteract.append(sprite)
         return animationListIdle, animationListInteract
 
-    def update(self, delta, map, objects):
+    def update(self, delta: int, map: "Map", objects: list[Object]):
         self.handleAnim(delta)
         self.handlePromptAnim(delta)
         self.handleInteractions(delta)
@@ -101,7 +107,7 @@ class Shopkeeper(Object):
     def checkIfHasEnoughMoney(self) -> bool:
         return True
     
-    def handleInteractions(self, delta):
+    def handleInteractions(self, delta: int) -> None:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_e] and self.inRangeOfPlayer() and self.eLifted and self.state == ShopStateEnum.NOT_INTERACTED:
             self.state = ShopStateEnum.SPEAKING_DIALOGUE_1
@@ -122,7 +128,7 @@ class Shopkeeper(Object):
         if not keys[pygame.K_e]:
             self.eLifted = True
     
-    def handlePromptAnim(self, delta):
+    def handlePromptAnim(self, delta: int) -> None:
         if self.inRangeOfPlayer() and self.state == ShopStateEnum.NOT_INTERACTED:
             self.isPromptVisible = True
             self.promptTimer -= delta
@@ -135,13 +141,13 @@ class Shopkeeper(Object):
         else:
             self.isPromptVisible = False
 
-    def purchasePotion(self):
+    def purchasePotion(self) -> None:
         self.player.onPotionDrink()
     
     def inRangeOfPlayer(self) -> bool:
         return (self.player.getCenter() - self.getCenter()).length() <= INTERACTABLE_DISTANCE
 
-    def handleAnim(self, delta):
+    def handleAnim(self, delta: int) -> None:
         self.animationTimer += delta
         if self.animationTimer >= ANIMATION_SPEED:
             self.animationTimer = 0.0 
@@ -153,7 +159,7 @@ class Shopkeeper(Object):
             else:
                 self.sprite = self.animationListIdle[self.currentFrame]
 
-    def draw(self, display):
+    def draw(self, display: pygame.Surface) -> None:
         display.blit(self.sprite, self.rect)
         if self.isPromptVisible:
             display.blit(self.promptSprites[self.currentPromptFrame], (self.rect.x + PROMPT_LOCATION[0], self.rect.y + PROMPT_LOCATION[1]))

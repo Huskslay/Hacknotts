@@ -42,7 +42,7 @@ class DirectionEnum(Enum):
     RIGHT = 4
 
 class Knight(Object):
-    def __init__(self):
+    def __init__(self) -> None:
 
         self.wait_timer = 3
 
@@ -91,22 +91,22 @@ class Knight(Object):
         if self.attacking:
             movementVector = movementVector * MOVEMENT_SLOW_WHEN_ATTACKING
         self.move_by(movementVector.x, movementVector.y, map)
-        self.handleAttackState(delta, objects, map)
+        self.handleAttackState(delta, map)
         self.setFacingDirection(movementVector)
         self.setAnimState(movementVector)
         self.setSprite(delta)
         self.chests(map)
         self.transitions(map)
     
-    def onPotionDrink(self):
+    def onPotionDrink(self) -> None:
         self.currentHealth = self.maxHealth
 
-    def startAttackSequence(self):
+    def startAttackSequence(self) -> None:
         if not self.attacking:
             self.attackTimer = ATTACK_DURATION
             self.attacking = True
     
-    def handleAttackState(self, delta, objects, map: Map):
+    def handleAttackState(self, delta: int, map: Map) -> None:
         self.attackTimer -= delta
         if self.attackTimer <= 0:
             self.attacking = False
@@ -120,7 +120,7 @@ class Knight(Object):
                 if self.attackHitboxRect.colliderect(object.hitbox):
                     object.onHit()
 
-    def setAttackHitbox(self):
+    def setAttackHitbox(self) -> None:
         playerRect = pygame.Rect(self.pos.x + 32, self.pos.y + 32, self.size[0] /3, self.size[1] /3)
         self.attackHitboxRect = playerRect.copy()
         match self.directionFacing:
@@ -142,7 +142,7 @@ class Knight(Object):
         if self.currentHealth < 0:
             self.currentHealth = 0
     
-    def setAnimState(self, movementVector):
+    def setAnimState(self, movementVector: pygame.Vector2) -> None:
         if self.attacking:
             self.animState = AnimStateEnum.ATTACK
             return
@@ -151,7 +151,7 @@ class Knight(Object):
         else:
             self.animState = AnimStateEnum.WALK
     
-    def setFacingDirection(self, movementVector):
+    def setFacingDirection(self, movementVector: pygame.Vector2) -> None:
         if movementVector == pygame.Vector2(0, 0):
             return
         else:
@@ -179,7 +179,7 @@ class Knight(Object):
             tempSprite = pygame.transform.scale(tempSprite, self.size)
             self.spriteList.append(tempSprite)
     
-    def setSprite(self, delta):
+    def setSprite(self, delta: int) -> None:
         self.spriteChangeWaitTimer -= delta
         if self.animState == AnimStateEnum.IDLE:
             if self.directionFacing == DirectionEnum.DOWN:
@@ -210,7 +210,7 @@ class Knight(Object):
                 self.setAttackSprite(FIRST_FRAME_RIGHT_ATTACK, IDLE_FRAMES)
         self.sprite = self.spriteList[self.currentSprite]
     
-    def setSpriteGivenDirection(self, firstFrame, frames):
+    def setSpriteGivenDirection(self, firstFrame: int, frames: int) -> None:
         isAnimWithinBounds = self.currentSprite < firstFrame + frames and self.currentSprite >= firstFrame
         if not isAnimWithinBounds:
             self.currentSprite = firstFrame
@@ -220,7 +220,7 @@ class Knight(Object):
             if self.currentSprite >= firstFrame + frames:
                 self.currentSprite = firstFrame
     
-    def setAttackSprite(self, firstFrame, frames):
+    def setAttackSprite(self, firstFrame: int, frames: int) -> None:
         self.currentSprite = firstFrame + (int) ((ATTACK_DURATION - self.attackTimer) / (ATTACK_DURATION / frames))
 
     def chests(self, map: Map) -> None:
