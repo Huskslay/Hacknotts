@@ -94,6 +94,9 @@ class Knight(Object):
         self.setSprite(delta)
         self.chests(map)
         self.transitions(map)
+    
+    def onPotionDrink(self):
+        self.currentHealth = self.maxHealth
 
     def startAttackSequence(self):
         if not self.attacking:

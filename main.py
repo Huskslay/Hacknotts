@@ -11,6 +11,7 @@ import objects.enemy as enemy
 from generation.generation import Generation
 from objects.HealthBar import HealthBar
 from objects.DeathScreen import DeathScreen
+from objects.Shopkeeper import Shopkeeper
 
 def main():
     clock = pygame.time.Clock()
@@ -29,10 +30,12 @@ def main():
     healthBar.passPlayerReference(player)
 
     slime1 = enemy.Slime(pygame.Vector2(400, 400))
+    shopkeeper = Shopkeeper(pygame.Vector2(500, 300))
     objects.append(player)
+    objects.append(shopkeeper)
     objects.append(slime1)
     for object in objects:
-        if isinstance(object, enemy.Enemy):
+        if isinstance(object, enemy.Enemy) or isinstance(object, Shopkeeper):
             object.passPlayerReference(player)
 
     while True:
