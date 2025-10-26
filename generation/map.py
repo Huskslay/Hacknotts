@@ -35,13 +35,13 @@ class Map:
         while len(chest_rooms) < chest_room_count:
             pos = (randint(0, MAP_SIZE), randint(0, MAP_SIZE))
             if pos[0] == MAP_SIZE // 2 and pos[1] == MAP_SIZE // 2 or \
-                pos == self.boss_entry_room or pos in self.rooms: continue 
+                pos == self.boss_entry_room or pos in chest_rooms: continue 
             chest_rooms.append(pos)
         shopkeeper_rooms: list[tuple[int, int]] = []
         while len(shopkeeper_rooms) < SHOPKEEPER_ROOMS:
             pos = (randint(0, MAP_SIZE), randint(0, MAP_SIZE))
             if pos[0] == MAP_SIZE // 2 and pos[1] == MAP_SIZE // 2 or \
-               pos == self.boss_entry_room or pos in self.rooms or pos in chest_rooms: continue
+               pos == self.boss_entry_room or pos in shopkeeper_rooms or pos in chest_rooms: continue
             shopkeeper_rooms.append(pos)
 
         for y in range(MAP_SIZE):
