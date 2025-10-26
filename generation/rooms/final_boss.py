@@ -1,9 +1,10 @@
 import pygame
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 if TYPE_CHECKING:
     from objects.enemy.enemy import Enemy
     from objects.knight import Knight
+    from objects.object import Object
 
 from generation.rooms.room import Room, Transition, SpriteLayer, Tilemaps, Tilemap, Chest
 from variables import TransitionDirEnum, TileEnum, TILE_SCALE, INTERACTABLE_DISTANCE, \
@@ -12,6 +13,27 @@ from variables import TransitionDirEnum, TileEnum, TILE_SCALE, INTERACTABLE_DIST
 class FinalBoss(Room):
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
         super().__init__(tilemaps, disable_transitions, knight)
+        
+        from objects.enemy.slime import Slime
+        
+        self.phases: list[list[tuple[list[Type[Enemy]], int, int]]] = [
+            [  # Phase 2
+                ([Slime, Slime, Slime], 5, 5),
+            ],
+            [  # Phase 2
+                ([Slime, Slime, Slime, Slime], 5, 5),
+                ([Slime, Slime], 10, 5),
+            ],
+            [  # Phase 3
+                ([Slime, Slime, Slime, Slime, Slime], 5, 5),
+                ([Slime, Slime, Slime], 10, 5),
+                ([Slime, Slime, Slime], 15, 5),
+            ],
+        ]
+        self.phase = 0
+        self.knight = knight
+
+        self.summon_next_phase()
         
         
     def make_empty_layout(self) -> list[list[list[TileEnum]]]:
@@ -47,6 +69,9 @@ class FinalBoss(Room):
     def make_chests(self, size: int) -> list["Chest"]:
         return []
     
+    def make_objects(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Object"]:
+        return []
+    
     def get_transitions(self, size: int, disable_transitions: list[TransitionDirEnum]) -> list[Transition]:
         transitions = []
         i = 0
@@ -55,5 +80,38 @@ class FinalBoss(Room):
             else: i += 1
         return transitions
 
-    def draw(self, display: pygame.Surface) -> None:
+    def summon_next_phase(self) -> None:
+        if self.phase >= len(self.phases): 
+            self.summon_boss()
+            return
+
+        summoners = self.phases[self.phase]
+        self.phase += 1
+
+        from objects.enemy.enemy_summoner import EnemySummoner
+        for summon in summoners:
+            sum = EnemySummoner(pygame.Vector2(
+                summon[1] * TILE_SCALE, summon[2] * TILE_SCALE), self.knight)
+            sum.go(self, summon[0])
+            self.objects.append(sum)
+
+    def summon_boss(self) -> None:
+        
+        pass
+
+
+    def draw(self, display: pygame.Surface) -> None:   
+        from objects.enemy.enemy import Enemy 
+        i = 0
+        passed = True
+        while i < len(self.objects):
+            object = self.objects[i]
+            if isinstance(object, Enemy):
+                if not object.alive:
+                    self.objects.pop(i)
+                else: 
+                    passed = False
+                    i += 1
+        if passed: self.summon_next_phase()
+
         super().draw(display)

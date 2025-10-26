@@ -84,7 +84,6 @@ class Slime(Enemy):
                 coin.passPlayerReference(self.player)
                 objects.append(coin)
 
-        start = self.pos.copy()
         if self.recoilVelocity.length() > 0:
             self.move_by(self.recoilVelocity.x * delta, self.recoilVelocity.y * delta, map)
             self.recoilVelocity *= 0.9
