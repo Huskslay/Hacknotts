@@ -61,7 +61,7 @@ class Knight(Object):
         self.spriteChangeWaitTimer = ANIMSPEED
         self.currentSprite = 0
         self.maxHealth = 6
-        self.currentHealth = 4
+        self.currentHealth = 6
         self.coins = 0
         self.potionStacks = 0
         self.damageCooldown = 0

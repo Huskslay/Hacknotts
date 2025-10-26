@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 
 SCALE = 4
 COIN_RENDER_POS = (5, 50)
+DAMAGEINFOPOS = (240, 10)
 
 AMPLITUDE = 2
 SPEED_FACTOR = 100.0 
@@ -35,6 +36,6 @@ class HealthAndCoinBar():
         for n in range(0, self.player.coins):
             yOffset = AMPLITUDE * math.sin((self.totalTime / SPEED_FACTOR) + (n * STEP))
             self.display.blit(self.coinSprite, (COIN_RENDER_POS[0] + ((n * COIN_SPACING) % (LINE_LENGTH * COIN_SPACING)), COIN_RENDER_POS[1] + yOffset + (int)((n * COIN_SPACING) / (LINE_LENGTH * COIN_SPACING)) * LINE_SPACING))
-
+    
     def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
