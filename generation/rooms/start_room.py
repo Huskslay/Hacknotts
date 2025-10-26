@@ -2,7 +2,7 @@ import pygame
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from objects.enemy import Enemy
+    from objects.enemy.enemy import Enemy
     from objects.knight import Knight
 
 from generation.rooms.room import Room, Transition, SpriteLayer, Tilemaps, Chest

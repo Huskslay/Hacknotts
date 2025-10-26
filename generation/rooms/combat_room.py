@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from objects.object import Object
-    from objects.enemy import Enemy
+    from objects.enemy.enemy import Enemy
     from objects.knight import Knight
 
 from generation.rooms.room import Room, SpriteLayer, Transition, Chest
@@ -49,7 +49,7 @@ class CombatRoom(Room):
         return []
     
     def make_objects(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Object"]:
-        from objects.enemy import Slime
+        from objects.enemy.slime import Slime
         enemies: list["Object"] = [Slime(pygame.Vector2((400, 400)), knight)]
         return enemies
     
