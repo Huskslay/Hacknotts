@@ -1,6 +1,7 @@
 import pygame
 from enum import Enum
 from typing import TYPE_CHECKING, Union
+import random
 
 if TYPE_CHECKING:
     from objects.knight import Knight
@@ -8,6 +9,7 @@ if TYPE_CHECKING:
 from objects.object import Object
 from generation.map import Map
 from objects.enemy.enemy import Enemy, EnemyStateEnum, DirectionEnum, Projectile
+from objects.coin import Coin
 
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
 SLIME_ATTACKSPEED = 700 ## Wait time in ms 
@@ -36,6 +38,7 @@ class Slime(Enemy):
         super().__init__(pos, knight)
         self.spriteSize = (16, 16)
         self.size = (32, 32)
+        self.isWaitingOnCoinSpawn = False
         self.hitboxSize = (30, 30)
         self.hitbox = pygame.Rect(1, 1, self.hitboxSize[0], self.hitboxSize[1])
         self.move_to_force(pos.x, pos.y)
@@ -74,6 +77,12 @@ class Slime(Enemy):
     
     def update(self, delta, map: Map, objects: list[Object]) -> None:
         super().update(delta, map, objects)
+        if self.isWaitingOnCoinSpawn:
+            self.isWaitingOnCoinSpawn = False
+            for _ in range(0, random.randint(5, 12)):
+                coin = Coin(self.pos)
+                coin.passPlayerReference(self.player)
+                objects.append(coin)
 
         start = self.pos.copy()
         if self.recoilVelocity.length() > 0:
@@ -117,6 +126,9 @@ class Slime(Enemy):
     
     def onHit(self, damage: int, attack_id: int) -> None:
         super().onHit(damage, attack_id)
+    
+    def spawnCoins(self):
+        self.isWaitingOnCoinSpawn = True
 
     def changeState(self) -> None:
         distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
