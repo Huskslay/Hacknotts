@@ -29,7 +29,7 @@ def main():
     player.move_to_force(400, 400)
     generation.create_map(player)
     
-    note = Note(pygame.Vector2(300, 300), player)
+    note = Note(pygame.Vector2(380, 385), player)
 
     healthBar = HealthAndCoinBar(display)
     healthBar.passPlayerReference(player)
