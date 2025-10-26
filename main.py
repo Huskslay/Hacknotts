@@ -34,7 +34,6 @@ def main():
 
     shopkeeper = Shopkeeper(pygame.Vector2(500, 300))
     shopkeeper.passPlayerReference(player)
-    objects.append(player)
     objects.append(shopkeeper)
 
     while True:
@@ -49,12 +48,12 @@ def main():
             
             display.fill("purple") 
 
-            objects = [obj for obj in objects if not isinstance(obj, enemy.Enemy) or obj.alive]
+            checks = [obj for obj in objects + generation.map.get_room().enemies if not isinstance(obj, enemy.Enemy) or obj.alive]
             
-            for object in objects + generation.map.get_room().enemies:
+            for object in checks:
                 object.update(delta, generation.map, objects)
 
-            for object in objects + generation.map.get_room().enemies:
+            for object in checks:
                 object.draw(display)
             
             healthBar.draw()

@@ -9,14 +9,11 @@ if TYPE_CHECKING:
 from generation.tilemap import Tilemaps, Tilemap
 from variables import SIZE, TileEnum, TILE_SCALE, TransitionDirEnum
 
-
-
 class Room:
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
         self.sprite_layers: list[SpriteLayer] = []
         self.layers: list[Layer] = []
         self.chests: list[Chest] = []
-        self.enemies: list[Enemy] = []
         
         layout = self.make_layout(tilemaps)
         chests = self.make_chests(TILE_SCALE)

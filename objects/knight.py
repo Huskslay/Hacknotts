@@ -87,7 +87,7 @@ class Knight(Object):
         if self.attacking:
             movementVector = movementVector * MOVEMENT_SLOW_WHEN_ATTACKING
         self.move_by(movementVector.x, movementVector.y, map)
-        self.handleAttackState(delta, objects)
+        self.handleAttackState(delta, objects, map)
         self.setFacingDirection(movementVector)
         self.setAnimState(movementVector)
         self.setSprite(delta)
@@ -102,7 +102,7 @@ class Knight(Object):
             self.attackTimer = ATTACK_DURATION
             self.attacking = True
     
-    def handleAttackState(self, delta, objects):
+    def handleAttackState(self, delta, objects, map: Map):
         self.attackTimer -= delta
         if self.attackTimer <= 0:
             self.attacking = False
@@ -112,10 +112,9 @@ class Knight(Object):
             self.spawnedAttackHitboxInCurrentAttack = True
             self.setAttackHitbox()
         if self.attackHitboxRect != None:
-            for object in objects:
-                if isinstance(object, Enemy):
-                    if self.attackHitboxRect.colliderect(object.hitbox):
-                        object.onHit()
+            for object in map.get_room().enemies:
+                if self.attackHitboxRect.colliderect(object.hitbox):
+                    object.onHit()
 
     def setAttackHitbox(self):
         playerRect = pygame.Rect(self.pos.x + 32, self.pos.y + 32, self.size[0] /3, self.size[1] /3)
