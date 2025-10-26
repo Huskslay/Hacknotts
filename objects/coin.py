@@ -34,6 +34,7 @@ class Coin(Object):
         if self.alive:
             self.animTimer += delta
             self.totalTimeS += delta * 0.001
+            self.velocity *= 0.99
             self.velocity += self.getDirToPlayer() * self.totalTimeS * self.totalTimeS
             self.hitbox.x += (int) (self.velocity.x * delta * 0.01)
             self.hitbox.y += (int) (self.velocity.y * delta * 0.01)
