@@ -186,4 +186,4 @@ class Shopkeeper(Object):
                 case ShopStateEnum.SPEAKING_DIALOGUE_4:
                     display.blit(self.speechBubbles[3], (self.rect.x + SPEECH_BUBBLE_OFFSETS[3][0], self.rect.y + SPEECH_BUBBLE_OFFSETS[3][1]))
                     display.blit(self.promptSprites[self.currentPromptFrame], (self.rect.x + SPEECH_BUBBLE_PROMPT[3][0], self.rect.y + SPEECH_BUBBLE_PROMPT[3][1]))
-        # pygame.draw.rect(display, (255, 0, 0), self.hitbox)
+        if __debug__:  pygame.draw.rect(display, (255, 0, 0), self.hitbox)
