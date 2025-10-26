@@ -123,7 +123,7 @@ class Slime(Enemy):
         self.projectiles.append(warnProjectile)
         self.commitedToAttack = True
     
-    def onHit(self, damage: int, attack_id: int) -> None:
+    def onHit(self, damage: float, attack_id: int) -> None:
         super().onHit(damage, attack_id)
     
     def spawnCoins(self):

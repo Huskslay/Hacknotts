@@ -14,7 +14,7 @@ import objects.enemy.enemy as enemy
 from generation.generation import Generation
 from objects.HealthBar import HealthAndCoinBar
 from objects.DeathScreen import DeathScreen
-from objects.Shopkeeper import Shopkeeper
+from objects.note import Note
 
 def main():
     clock = pygame.time.Clock()
@@ -28,11 +28,14 @@ def main():
     player = knight.Knight()
     player.move_to_force(400, 400)
     generation.create_map(player)
+    
+    note = Note(pygame.Vector2(380, 385), player)
 
     healthBar = HealthAndCoinBar(display)
     healthBar.passPlayerReference(player)
 
     objects.append(player)
+    objects.append(note)
     
 
     while True:

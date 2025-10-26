@@ -35,7 +35,7 @@ class Enemy(Object):
         self.pos = pos
         self.spritesheet = None
         self.commitedToAttack = False
-        self.health: int
+        self.health: float
         self.recoilVelocity = pygame.Vector2(0, 0)
         self.recoilAmount: float
         self.attack_immunity_id = 0
@@ -45,7 +45,7 @@ class Enemy(Object):
     def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
     
-    def onHit(self, damage: int, attack_id: int) -> None:
+    def onHit(self, damage: float, attack_id: int) -> None:
         if attack_id == self.attack_immunity_id: return
         self.attack_immunity_id = attack_id
 
