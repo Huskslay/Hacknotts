@@ -55,8 +55,8 @@ class Knight(Object):
         self.animState = AnimStateEnum.IDLE
         self.spriteChangeWaitTimer = ANIMSPEED
         self.currentSprite = 0
-        self.maxHealth = 5
-        self.currentHealth = 5
+        self.maxHealth = 6
+        self.currentHealth = 6
         self.damageCooldown = 0
         self.attacking = False
         self.attackTimer = 0
