@@ -44,6 +44,8 @@ class DirectionEnum(Enum):
 class Knight(Object):
     def __init__(self):
 
+        self.wait_timer = 3
+
         self.size = (96, 96)
         self.spriteSize = (48, 48)
         self.hitboxSize = (24, 24)
@@ -70,6 +72,8 @@ class Knight(Object):
         return pygame.Vector2(xComponent, yComponent)
 
     def update(self, delta: int, map: Map, objects: list[Object]) -> None:
+        if self.wait_timer > 0: self.wait_timer -= delta; self.setSprite(delta); return
+
         keys = pygame.key.get_pressed()
         movementVector = pygame.Vector2(0, 0)
         if keys[pygame.K_w]:
