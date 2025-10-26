@@ -1,4 +1,4 @@
-import pygame
+import pygame, random
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -50,7 +50,15 @@ class CombatRoom(Room):
     
     def make_objects(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Object"]:
         from objects.enemy.slime import Slime
-        enemies: list["Object"] = [Slime(pygame.Vector2((400, 400)), knight)]
+        from objects.enemy.bat import Bat
+        enemies: list["Object"] = []
+        match random.randint(0, 2):
+            case 0:
+                enemies: list["Object"] = [Slime(pygame.Vector2((random.randint(300, 500), random.randint(300, 500))), knight)]
+            case 1:
+                enemies: list["Object"] = [Bat(pygame.Vector2((random.randint(300, 500), random.randint(300, 500))), knight)]
+            case 2:
+                enemies: list["Object"] = [Slime(pygame.Vector2((random.randint(300, 500), random.randint(300, 500))), knight), Bat(pygame.Vector2((random.randint(300, 500), random.randint(300, 500))), knight)]
         return enemies
     
     def get_transitions(self, size: int, disable_transitions: list[TransitionDirEnum]) -> list[Transition]:
