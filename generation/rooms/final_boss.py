@@ -27,7 +27,7 @@ class FinalBoss(Room):
     def make_layout(self, tilemaps: Tilemaps) -> list[list[list[TileEnum]]]:
         self.sprite_layers = [SpriteLayer(tilemaps.get_map("dungeon"))]
 
-        room = (1, 4, 18, 6)
+        room = (1, 2, 18, 8)
         layout = self.make_empty_layout()
 
         for x in range(room[0], room[2] + 1):
