@@ -3,7 +3,7 @@ from random import randint
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from objects.enemy import Enemy
+    from objects.object import Object
     from objects.knight import Knight
 
 from generation.tilemap import Tilemaps, Tilemap
@@ -17,7 +17,7 @@ class Room:
         
         layout = self.make_layout(tilemaps)
         chests = self.make_chests(TILE_SCALE)
-        self.enemies = self.make_enemies(layout[0], knight)
+        self.objects = self.make_objects(layout[0], knight)
 
         self.generate_sprite_layers(layout)
         self.generate_transition_layer(self.get_transitions(TILE_SCALE, disable_transitions), tilemaps)
@@ -98,7 +98,7 @@ class Room:
     def make_chests(self, size: int) -> list["Chest"]:
         return []
     
-    def make_enemies(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Enemy"]:
+    def make_objects(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Object"]:
         return []
 
     def get_transitions(self, size: int, disable_transitions: list[TransitionDirEnum]) -> list["Transition"]:

@@ -1,4 +1,0 @@
-- start room
-- enemy room 
-- chest room
-- boss room?

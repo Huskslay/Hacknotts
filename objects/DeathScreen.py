@@ -1,4 +1,8 @@
 import pygame, math
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from objects.knight import Knight
+
 
 DEATHTEXTSIZE = 8
 DEATHSKULLSIZE = 60
@@ -13,7 +17,7 @@ RESTART_TEXT_X = 1000
 RESTART_TEXT_Y = 600
 
 class DeathScreen():
-    def __init__(self, display) -> None:
+    def __init__(self, display: pygame.Surface) -> None:
         self.display = display
         self.textSprite = pygame.image.load("Assets\\DeathScreenAssets\\DeathText.png").convert_alpha()
         self.skullSprite = pygame.image.load("Assets\\DeathScreenAssets\\DeathSkull.png").convert_alpha()
@@ -28,7 +32,7 @@ class DeathScreen():
         self.isHovering = False
         self.restarting = False
 
-    def draw(self, delta) -> None:
+    def draw(self, delta: int) -> None:
         self.deltatotal += delta
         self.display.fill((40, 40, 40)) 
         self.renderInDeathText()
@@ -36,7 +40,7 @@ class DeathScreen():
         self.checkForInputs()
         self.renderInRestart()
 
-    def passPlayerReference(self, player) -> None:
+    def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
     
     def renderInDeathSkull(self) -> None:

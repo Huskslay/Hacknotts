@@ -1,5 +1,9 @@
 import pygame
 from enum import Enum
+from typing import TYPE_CHECKING, Union
+
+if TYPE_CHECKING:
+    from objects.knight import Knight
 
 from objects.object import Object
 from generation.map import Map
@@ -25,7 +29,7 @@ class DirectionEnum(Enum):
     RIGHT = 4
 
 class Enemy(Object):
-    def __init__(self, pos: pygame.Vector2) -> None:
+    def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None] = None) -> None:
         super().__init__()
         self.deltaTotal = 0
         self.alive = True
@@ -39,15 +43,21 @@ class Enemy(Object):
         self.pos = pos
         self.spritesheet = None
         self.commitedToAttack = False
+        self.health: int
+        self.recoilVelocity = pygame.Vector2(0, 0)
+        self.recoilAmount: float
+        self.attack_immunity_id = 0
+
+        if knight is not None: self.passPlayerReference(knight)
     
-    def passPlayerReference(self, player) -> None:
+    def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
     
-    def onHit(self):
+    def onHit(self, damage: int, attack_id: int) -> None:
         pass
 
     
-    def initialiseSprites(self, spritesheetPath, xSprites, ySprites, spriteSize) -> None:
+    def initialiseSprites(self, spritesheetPath: str, xSprites: int, ySprites: int, spriteSize: tuple[int, int]) -> None:
         self.spriteList = []
         self.spritesheetSize = pygame.Vector2(xSprites, ySprites)
         self.spritesheet = pygame.image.load(spritesheetPath).convert_alpha()
@@ -61,7 +71,7 @@ class Enemy(Object):
             self.spriteList.append(tempSprite)
         self.setSprite(0)
 
-    def getFacingDirection(self, movementVector) -> DirectionEnum:
+    def getFacingDirection(self, movementVector: pygame.Vector2) -> DirectionEnum:
         if movementVector == pygame.Vector2(0, 0):
             return DirectionEnum.DOWN
         else:
@@ -90,10 +100,10 @@ class Enemy(Object):
             if projectile.shouldBeDestroyed():
                 self.projectiles.remove(projectile)
 
-    def setSprite(self, delta) -> None:
+    def setSprite(self, delta: int) -> None:
         pass
 
-    def handleStates(self, delta, map: Map) -> None:
+    def handleStates(self, delta: int, map: Map) -> None:
         pass
 
     def draw(self, display: pygame.Surface) -> None:
@@ -108,24 +118,28 @@ SLIME_IDLE_FRAME_RIGHT = 8
 SLIME_FIRST_FRAME_UP = 12
 SLIMEIDLEFRAMES = 4
 SLIME_SPEED = 0.14
+SLIME_HEALTH = 3
+SLIME_RECOIL_AMOUNT = 0.25
 
 XSPRITES = 4
 YSPRITES = 8
 
 class Slime(Enemy):
-    def __init__(self, pos: pygame.Vector2) -> None:
-        super().__init__(pos)
+    def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None] = None) -> None:
+        super().__init__(pos, knight)
         self.spriteSize = (16, 16)
         self.size = (32, 32)
         self.hitboxSize = (30, 30)
         self.hitbox = pygame.Rect(1, 1, self.hitboxSize[0], self.hitboxSize[1])
         self.move_to_force(pos.x, pos.y)
         self.initialiseSprites("Assets\\Slimesheet.png", XSPRITES, YSPRITES, self.spriteSize)
-    
-    def initialiseSprites(self, spritesheetPath, xSprites, ySprites, spriteSize) -> None:
+        self.health = SLIME_HEALTH
+        self.recoilAmount = SLIME_RECOIL_AMOUNT
+
+    def initialiseSprites(self, spritesheetPath: str, xSprites: int, ySprites: int, spriteSize: tuple[int, int]) -> None:
         super().initialiseSprites(spritesheetPath, xSprites, ySprites, spriteSize)
     
-    def setSprite(self, delta) -> None:
+    def setSprite(self, delta: int) -> None:
         self.spriteChangeWaitTimer -= delta
         if self.directionFacing == DirectionEnum.DOWN:
             self.setSpriteGivenDirection(SLIME_FIRST_FRAME_DOWN, SLIMEIDLEFRAMES)
@@ -137,7 +151,7 @@ class Slime(Enemy):
             self.setSpriteGivenDirection(SLIME_IDLE_FRAME_RIGHT, SLIMEIDLEFRAMES)
         self.sprite = self.spriteList[self.currentSprite]
     
-    def setSpriteGivenDirection(self, firstFrame, frames) -> None:
+    def setSpriteGivenDirection(self, firstFrame: int, frames: int) -> None:
         isAnimWithinBounds = self.currentSprite < firstFrame + frames and self.currentSprite >= firstFrame
         if not isAnimWithinBounds:
             self.currentSprite = firstFrame
@@ -147,20 +161,25 @@ class Slime(Enemy):
             if self.currentSprite >= firstFrame + frames:
                 self.currentSprite = firstFrame
     
-    def handleStates(self, delta, map: Map) -> None:
+    def handleStates(self, delta: int, map: Map) -> None:
         self.changeState()
         self.actUponState(delta, map)
     
     def update(self, delta, map: Map, objects: list[Object]) -> None:
         super().update(delta, map, objects)
+        if self.recoilVelocity.length() > 0:
+            self.move_by(self.recoilVelocity.x * delta, self.recoilVelocity.y * delta, map)
+            self.recoilVelocity *= 0.9
+            if self.recoilVelocity.length() < 0.01:
+                self.recoilVelocity = pygame.Vector2(0, 0)
     
-    def actUponState(self, delta, map: Map) -> None:
+    def actUponState(self, delta: int, map: Map) -> None:
         if self.state == EnemyStateEnum.PURSUIT:
             self.actUponStatePursuit(delta, map)
         elif self.state == EnemyStateEnum.ATTACK:
             self.actUponStateAttack(delta)
     
-    def actUponStatePursuit(self, delta, map: Map) -> None:
+    def actUponStatePursuit(self, delta: int, map: Map) -> None:
         toPlayerVector = (self.player.getCenter() - self.getCenter())
         if toPlayerVector == pygame.Vector2(0, 0):
             directionToPlayer = pygame.Vector2(0, 0)
@@ -169,7 +188,7 @@ class Slime(Enemy):
         self.move_by(directionToPlayer.x * SLIME_SPEED * delta , directionToPlayer.y * SLIME_SPEED * delta, map)
         self.directionFacing = self.getFacingDirection(directionToPlayer)
     
-    def actUponStateAttack(self, delta) -> None:
+    def actUponStateAttack(self, delta: int) -> None:
         self.attackWaitTimer -= delta
         if self.attackWaitTimer <= 0:
             self.attackWaitTimer = ATTACKSPEED
@@ -187,8 +206,15 @@ class Slime(Enemy):
         self.projectiles.append(warnProjectile)
         self.commitedToAttack = True
     
-    def onHit(self):
-        self.alive = False
+    def onHit(self, damage: int, attack_id: int) -> None:
+        if attack_id == self.attack_immunity_id: return
+        self.attack_immunity_id = attack_id
+
+        self.health -= damage
+        if self.health <= 0:
+            self.alive = False
+        else:
+            self.recoilVelocity = (self.getCenter() - self.player.getCenter()).normalize() * self.recoilAmount
 
     def changeState(self) -> None:
         distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
@@ -217,7 +243,7 @@ class Projectile(Object):
         return self.lifetime <= 0
 
 class SlimeAttackSlash(Projectile):
-    def __init__(self, playerCenter):
+    def __init__(self, playerCenter: pygame.Vector2) -> None:
         super().__init__()
         self.size = (24, 32)
         self.hitboxSize = (24, 32)
@@ -231,13 +257,13 @@ class SlimeAttackSlash(Projectile):
         self.hitbox.x = (int)(self.pos.x + self.size[0] / 2 - self.hitboxSize[0] / 2)
         self.hitbox.y = (int)(self.pos.y + self.size[1] / 2 - self.hitboxSize[1] / 2)
     
-    def update(self, delta, map: Map, objects: list[Object]) -> None:
+    def update(self, delta: int, map: Map, objects: list[Object]) -> None:
         self.lifetime -= delta
         if self.hitbox.colliderect(self.player.hitbox) and self.canDoDamage:
             self.player.takeDamage(1)
             self.canDoDamage = False
 
-    def passPlayerReference(self, player) -> None:
+    def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
     
     def draw(self, display: pygame.Surface) -> None:
@@ -245,7 +271,7 @@ class SlimeAttackSlash(Projectile):
         display.blit(self.sprite, self.pos)
 
 class SlimeAttackWarn(Projectile):
-    def __init__(self, playerCenter):
+    def __init__(self, playerCenter: pygame.Vector2) -> None:
         super().__init__()
         self.size = (24, 32)
         self.hitboxSize = (24, 32)
