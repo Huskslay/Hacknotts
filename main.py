@@ -15,7 +15,6 @@ from generation.generation import Generation
 from objects.HealthBar import HealthAndCoinBar
 from objects.DeathScreen import DeathScreen
 from objects.Shopkeeper import Shopkeeper
-from objects.coin import Coin
 
 def main():
     clock = pygame.time.Clock()
