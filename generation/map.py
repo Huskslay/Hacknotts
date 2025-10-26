@@ -1,5 +1,9 @@
 import pygame
 from random import randint
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from objects.knight import Knight
 
 from generation.rooms.start_room import Room, StartRoom
 from generation.rooms.combat_room import CombatRoom
@@ -8,9 +12,8 @@ from generation.tilemap import Tilemaps
 
 from variables import ROOM_SIZE, TransitionDirEnum, TILE_SCALE, CHEST_ROOMS
 
-
 class Map:
-    def __init__(self, tilemaps: Tilemaps) -> None:  
+    def __init__(self, tilemaps: Tilemaps, knight: "Knight") -> None:  
         self.rooms: list[list[Room]] = []
 
         chest_rooms: list[tuple[int, int]] = []
@@ -33,16 +36,17 @@ class Map:
                 if (x, y) in chest_rooms: 
                     # if TransitionDirEnum.UP not in disable_transitions:
                     #     disable_transitions.append(TransitionDirEnum.UP)
-                    self.rooms[-1].append(ChestRoom(tilemaps, disable_transitions))
-                else: self.rooms[-1].append(CombatRoom(tilemaps, disable_transitions))
+                    self.rooms[-1].append(ChestRoom(tilemaps, disable_transitions, knight))
+                else: self.rooms[-1].append(CombatRoom(tilemaps, disable_transitions, knight))
 
-        self.rooms[ROOM_SIZE[1] // 2][ROOM_SIZE[0] // 2] = StartRoom(tilemaps, [])
+        self.rooms[ROOM_SIZE[1] // 2][ROOM_SIZE[0] // 2] = StartRoom(tilemaps, [], knight)
         self.room = (ROOM_SIZE[1] // 2, ROOM_SIZE[0] // 2)
 
     def get_room(self) -> Room:
         return self.rooms[self.room[0]][self.room[1]]
 
-    def transition(self, transitionDir: TransitionDirEnum, knight) -> None:
+    def transition(self, transitionDir: TransitionDirEnum, knight: "Knight") -> None:
+        
         match (transitionDir):
             case TransitionDirEnum.LEFT:
                 self.room = (self.room[0] - 1, self.room[1])

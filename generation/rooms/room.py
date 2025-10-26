@@ -1,17 +1,27 @@
 import pygame
 from random import randint
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from objects.enemy import Enemy
+    from objects.knight import Knight
 
 from generation.tilemap import Tilemaps, Tilemap
 from variables import SIZE, TileEnum, TILE_SCALE, TransitionDirEnum
 
+
+
 class Room:
-    def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum]) -> None:
+    def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
         self.sprite_layers: list[SpriteLayer] = []
         self.layers: list[Layer] = []
         self.chests: list[Chest] = []
+        self.enemies: list[Enemy] = []
         
         layout = self.make_layout(tilemaps)
         chests = self.make_chests(TILE_SCALE)
+        self.enemies = self.make_enemies(layout[0], knight)
+
         self.generate_sprite_layers(layout)
         self.generate_transition_layer(self.get_transitions(TILE_SCALE, disable_transitions), tilemaps)
         self.generate_chests_layer(chests, tilemaps)
@@ -89,6 +99,9 @@ class Room:
         return []
     
     def make_chests(self, size: int) -> list["Chest"]:
+        return []
+    
+    def make_enemies(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Enemy"]:
         return []
 
     def get_transitions(self, size: int, disable_transitions: list[TransitionDirEnum]) -> list["Transition"]:
@@ -179,4 +192,3 @@ class SpriteLayer(Layer):
                 # normal
                 display.blit(self.tilemap.tiles[self.tiles[y][x]], 
                              pygame.Vector2(x * self.tilemap.size, y * self.tilemap.size))
-        

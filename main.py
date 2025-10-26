@@ -18,22 +18,17 @@ def main():
 
     generation = Generation()
     deathScreen = DeathScreen(display)
-    player : knight.Knight
 
     objects.append(generation)
 
-    player = knight.Knight(display)
-    player.move_to(400, 400, generation.map)
+    player = knight.Knight()
+    player.move_to_force(400, 400)
+    generation.create_map(player)
 
     healthBar = HealthBar(display)
     healthBar.passPlayerReference(player)
 
-    slime1 = enemy.Slime(pygame.Vector2(400, 400))
     objects.append(player)
-    objects.append(slime1)
-    for object in objects:
-        if isinstance(object, enemy.Enemy):
-            object.passPlayerReference(player)
 
     while True:
         delta = clock.tick(60)
@@ -49,10 +44,10 @@ def main():
 
             objects = [obj for obj in objects if not isinstance(obj, enemy.Enemy) or obj.alive]
             
-            for object in objects:
+            for object in objects + generation.map.get_room().enemies:
                 object.update(delta, generation.map, objects)
 
-            for object in objects:
+            for object in objects + generation.map.get_room().enemies:
                 object.draw(display)
             
             healthBar.draw()

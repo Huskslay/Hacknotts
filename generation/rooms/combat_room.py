@@ -1,4 +1,9 @@
 import pygame
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from objects.enemy import Enemy
+    from objects.knight import Knight
 
 from generation.rooms.room import Room, SpriteLayer, Transition, Chest
 from generation.tilemap import Tilemaps
@@ -6,8 +11,8 @@ from generation.tilemap import Tilemaps
 from variables import TileEnum, TransitionDirEnum
 
 class CombatRoom(Room):
-    def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum]) -> None:
-        super().__init__(tilemaps, disable_transitions)
+    def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
+        super().__init__(tilemaps, disable_transitions, knight)
         
     def make_empty_layout(self) -> list[list[list[TileEnum]]]:
         layout: list[list[list[TileEnum]]] = []
@@ -22,18 +27,18 @@ class CombatRoom(Room):
     def make_layout(self, tilemaps: Tilemaps) -> list[list[list[TileEnum]]]:
         self.sprite_layers = [SpriteLayer(tilemaps.get_map("grass"))]
 
-        room = (5, 2, 14, 8)
+        self.room = (5, 2, 14, 8)
         layout = self.make_empty_layout()
 
-        for x in range(room[0], room[2] + 1):
-            for y in range(room[1], room[3] + 1):
-                if x == room[0] and y == room[1]: 
+        for x in range(self.room[0], self.room[2] + 1):
+            for y in range(self.room[1], self.room[3] + 1):
+                if x == self.room[0] and y == self.room[1]: 
                     layout[0][y][x] = TileEnum.TL
-                elif x == room[2] and y == room[1]: 
+                elif x == self.room[2] and y == self.room[1]: 
                     layout[0][y][x] = TileEnum.TR
-                elif x == room[0] and y == room[3]: 
+                elif x == self.room[0] and y == self.room[3]: 
                     layout[0][y][x] = TileEnum.BL
-                elif x == room[2] and y == room[3]: 
+                elif x == self.room[2] and y == self.room[3]: 
                     layout[0][y][x] = TileEnum.BR
                 else: layout[0][y][x] = TileEnum.FLOOR
 
@@ -41,6 +46,12 @@ class CombatRoom(Room):
     
     def make_chests(self, size: int) -> list["Chest"]:
         return []
+    
+    def make_enemies(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Enemy"]:
+        from objects.enemy import Slime
+        enemies: list["Enemy"] = [Slime(pygame.Vector2((400, 400)))]
+        for enemy in enemies: enemy.passPlayerReference(knight)
+        return enemies
     
     def get_transitions(self, size: int, disable_transitions: list[TransitionDirEnum]) -> list[Transition]:
         transitions = [Transition(4, 5, TransitionDirEnum.LEFT, size), 

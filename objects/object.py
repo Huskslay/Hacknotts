@@ -2,7 +2,6 @@ import pygame
 
 from generation.map import Map
 
-
 class Object:
     def update(self, delta: int, map: Map, objects: list["Object"]) -> None:
         self.hitbox : pygame.Rect

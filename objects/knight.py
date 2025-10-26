@@ -42,13 +42,12 @@ class DirectionEnum(Enum):
     RIGHT = 4
 
 class Knight(Object):
-    def __init__(self, display):
+    def __init__(self):
 
         self.size = (96, 96)
         self.spriteSize = (48, 48)
         self.hitboxSize = (24, 24)
 
-        self.display = display
         self.spritesheet = pygame.image.load("Assets\\KnightSpritesheet.png").convert_alpha()
         self.hitbox = pygame.Rect(4, 4, self.hitboxSize[0], self.hitboxSize[1])
         self.pos = pygame.Vector2(0, 0)
@@ -231,6 +230,6 @@ class Knight(Object):
 
     def draw(self, display: pygame.Surface) -> None:
         pygame.draw.rect(display, (255, 0, 0), self.hitbox)
-        self.display.blit(self.sprite, self.pos)
+        display.blit(self.sprite, self.pos)
         if self.attackHitboxRect != None:
            pygame.draw.rect(display, (0, 255, 255), self.attackHitboxRect)

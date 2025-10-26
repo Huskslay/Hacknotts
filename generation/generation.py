@@ -1,4 +1,8 @@
 import pygame
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from objects.knight import Knight
 
 from generation.map import Map
 from objects.object import Object
@@ -23,7 +27,8 @@ class Generation(Object):
          [TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.FLOOR, TileEnum.TL, TileEnum.TR],
          ])
         
-        self.map = Map(self.tilemaps)
+    def create_map(self, knight: "Knight") -> None:
+        self.map = Map(self.tilemaps, knight)
 
     def draw(self, display: pygame.Surface) -> None:
         self.map.draw(display)

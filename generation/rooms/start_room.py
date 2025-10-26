@@ -1,13 +1,16 @@
 import pygame
+from typing import TYPE_CHECKING
 
-from generation.rooms.room import Room, SpriteLayer, Transition, Chest
-from generation.tilemap import Tilemaps
+if TYPE_CHECKING:
+    from objects.enemy import Enemy
+    from objects.knight import Knight
 
-from variables import TileEnum, TransitionDirEnum
+from generation.rooms.room import Room, Transition, SpriteLayer, Tilemaps, Chest
+from variables import TransitionDirEnum, TileEnum
 
 class StartRoom(Room):
-    def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum]) -> None:
-        super().__init__(tilemaps, disable_transitions)
+    def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
+        super().__init__(tilemaps, disable_transitions, knight)
         
     def make_empty_layout(self) -> list[list[list[TileEnum]]]:
         layout: list[list[list[TileEnum]]] = []

@@ -1,5 +1,10 @@
 import pygame
 from random import randint
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from objects.enemy import Enemy
+    from objects.knight import Knight
 
 from generation.rooms.room import Room, SpriteLayer, Transition, Chest
 from generation.tilemap import Tilemaps
@@ -7,8 +12,8 @@ from generation.tilemap import Tilemaps
 from variables import TileEnum, TransitionDirEnum, TRY_SPAWN_CHESTS
 
 class ChestRoom(Room):
-    def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum]) -> None:
-        super().__init__(tilemaps, disable_transitions)
+    def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
+        super().__init__(tilemaps, disable_transitions, knight)
         
     def make_empty_layout(self) -> list[list[list[TileEnum]]]:
         layout: list[list[list[TileEnum]]] = []

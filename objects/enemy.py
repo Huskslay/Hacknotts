@@ -4,7 +4,6 @@ from enum import Enum
 from objects.object import Object
 from generation.map import Map
 
-
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
 ATTACKSPEED = 550 ## Wait time in ms 
 PROJECTILE_WARN_TIME = 400
@@ -60,6 +59,7 @@ class Enemy(Object):
             tempSprite = self.spritesheet.subsurface(pygame.Rect(xCoords, yCoords, spriteSize[0], spriteSize[1]))
             tempSprite = pygame.transform.scale(tempSprite, self.size)
             self.spriteList.append(tempSprite)
+        self.setSprite(0)
 
     def getFacingDirection(self, movementVector) -> DirectionEnum:
         if movementVector == pygame.Vector2(0, 0):
