@@ -11,6 +11,7 @@ import objects.enemy as enemy
 from generation.generation import Generation
 from objects.HealthBar import HealthBar
 from objects.DeathScreen import DeathScreen
+from objects.Shopkeeper import Shopkeeper
 
 def main():
     clock = pygame.time.Clock()
@@ -28,7 +29,13 @@ def main():
     healthBar = HealthBar(display)
     healthBar.passPlayerReference(player)
 
+
     objects.append(player)
+
+    shopkeeper = Shopkeeper(pygame.Vector2(500, 300))
+    shopkeeper.passPlayerReference(player)
+    objects.append(player)
+    objects.append(shopkeeper)
 
     while True:
         delta = clock.tick(60)
