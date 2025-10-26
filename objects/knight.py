@@ -45,6 +45,7 @@ class Knight(Object):
     def __init__(self) -> None:
 
         self.wait_timer = 3
+        self.attack_id = 0
 
         self.size = (96, 96)
         self.spriteSize = (48, 48)
@@ -103,6 +104,7 @@ class Knight(Object):
 
     def startAttackSequence(self) -> None:
         if not self.attacking:
+            self.attack_id += 1
             self.attackTimer = ATTACK_DURATION
             self.attacking = True
     
@@ -119,7 +121,7 @@ class Knight(Object):
             for object in map.get_room().objects:
                 if isinstance(object, Enemy):
                     if self.attackHitboxRect.colliderect(object.hitbox):
-                        object.onHit()
+                        object.onHit(1, self.attack_id)
 
     def setAttackHitbox(self) -> None:
         playerRect = pygame.Rect(self.pos.x + 32, self.pos.y + 32, self.size[0] /3, self.size[1] /3)

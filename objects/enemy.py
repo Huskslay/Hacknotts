@@ -43,12 +43,17 @@ class Enemy(Object):
         self.pos = pos
         self.spritesheet = None
         self.commitedToAttack = False
+        self.health: int
+        self.recoilVelocity = pygame.Vector2(0, 0)
+        self.recoilAmount: float
+        self.attack_immunity_id = 0
+
         if knight is not None: self.passPlayerReference(knight)
     
     def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
     
-    def onHit(self):
+    def onHit(self, damage: int, attack_id: int) -> None:
         pass
 
     
@@ -113,6 +118,8 @@ SLIME_IDLE_FRAME_RIGHT = 8
 SLIME_FIRST_FRAME_UP = 12
 SLIMEIDLEFRAMES = 4
 SLIME_SPEED = 0.14
+SLIME_HEALTH = 3
+SLIME_RECOIL_AMOUNT = 0.25
 
 XSPRITES = 4
 YSPRITES = 8
@@ -126,7 +133,9 @@ class Slime(Enemy):
         self.hitbox = pygame.Rect(1, 1, self.hitboxSize[0], self.hitboxSize[1])
         self.move_to_force(pos.x, pos.y)
         self.initialiseSprites("Assets\\Slimesheet.png", XSPRITES, YSPRITES, self.spriteSize)
-    
+        self.health = SLIME_HEALTH
+        self.recoilAmount = SLIME_RECOIL_AMOUNT
+
     def initialiseSprites(self, spritesheetPath: str, xSprites: int, ySprites: int, spriteSize: tuple[int, int]) -> None:
         super().initialiseSprites(spritesheetPath, xSprites, ySprites, spriteSize)
     
@@ -158,6 +167,11 @@ class Slime(Enemy):
     
     def update(self, delta, map: Map, objects: list[Object]) -> None:
         super().update(delta, map, objects)
+        if self.recoilVelocity.length() > 0:
+            self.move_by(self.recoilVelocity.x * delta, self.recoilVelocity.y * delta, map)
+            self.recoilVelocity *= 0.9
+            if self.recoilVelocity.length() < 0.01:
+                self.recoilVelocity = pygame.Vector2(0, 0)
     
     def actUponState(self, delta: int, map: Map) -> None:
         if self.state == EnemyStateEnum.PURSUIT:
@@ -192,8 +206,15 @@ class Slime(Enemy):
         self.projectiles.append(warnProjectile)
         self.commitedToAttack = True
     
-    def onHit(self):
-        self.alive = False
+    def onHit(self, damage: int, attack_id: int) -> None:
+        if attack_id == self.attack_immunity_id: return
+        self.attack_immunity_id = attack_id
+
+        self.health -= damage
+        if self.health <= 0:
+            self.alive = False
+        else:
+            self.recoilVelocity = (self.getCenter() - self.player.getCenter()).normalize() * self.recoilAmount
 
     def changeState(self) -> None:
         distanceToPlayer = (self.getCenter() - self.player.getCenter()).length()
