@@ -9,7 +9,7 @@ from objects.object import Object
 from generation.map import Map
 
 ANIMSPEED = 220 ## Wait time in ms between sprite changes in anim
-ATTACKSPEED = 550 ## Wait time in ms 
+SLIME_ATTACKSPEED = 700 ## Wait time in ms 
 PROJECTILE_WARN_TIME = 400
 FLASH_FREQUENCY = 1
 
@@ -39,7 +39,7 @@ class Enemy(Object):
         self.directionFacing = DirectionEnum.UP
         self.currentSprite = 0
         self.spriteChangeWaitTimer = ANIMSPEED
-        self.attackWaitTimer = ATTACKSPEED
+        self.attackWaitTimer = SLIME_ATTACKSPEED
         self.pos = pos
         self.spritesheet = None
         self.commitedToAttack = False
@@ -200,7 +200,7 @@ class Slime(Enemy):
     def actUponStateAttack(self, delta: int) -> None:
         self.attackWaitTimer -= delta
         if self.attackWaitTimer <= 0:
-            self.attackWaitTimer = ATTACKSPEED
+            self.attackWaitTimer = SLIME_ATTACKSPEED
             attackProjectile = SlimeAttackSlash(self.targetCoord)
             attackProjectile.passPlayerReference(self.player)
             self.projectiles.append(attackProjectile)
@@ -228,7 +228,7 @@ class Slime(Enemy):
                 self.state = EnemyStateEnum.IDLE
             elif distanceToPlayer <= SLIME_ATTACK_RADIUS:
                 self.state = EnemyStateEnum.ATTACK
-                self.attackWaitTimer = ATTACKSPEED
+                self.attackWaitTimer = SLIME_ATTACKSPEED
                 self.lockTarget()
         elif self.state == EnemyStateEnum.ATTACK and not self.commitedToAttack:
             if distanceToPlayer > SLIME_ATTACK_RADIUS:
