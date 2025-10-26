@@ -18,7 +18,7 @@ from generation.tilemap import Tilemaps
 from variables import MAP_SIZE, TransitionDirEnum, TILE_SCALE, CHEST_ROOMS, SHOPKEEPER_ROOMS
 
 FINALHALLWAY = (-1, -1)
-FINALHALLWAY_POS = (1.5, 5)
+FINALHALLWAY_POS = (2.5, 5)
 FINALBOSS = (-2, -2)
 FINALBOSS_POS = (10, 5)
 
@@ -29,18 +29,18 @@ class Map:
         self.final_hallway = FinalHallway(tilemaps, [], knight)
         self.final_boss = FinalBoss(tilemaps, [], knight)
 
-        boss_entry_room = self.random_edge_coord(MAP_SIZE)
+        self.boss_entry_room = self.random_edge_coord(MAP_SIZE)
         chest_rooms: list[tuple[int, int]] = []
         while len(chest_rooms) < CHEST_ROOMS:
             pos = (randint(0, MAP_SIZE), randint(0, MAP_SIZE))
             if pos[0] == MAP_SIZE // 2 and pos[1] == MAP_SIZE // 2 or \
-                pos == boss_entry_room or pos in self.rooms: continue 
+                pos == self.boss_entry_room or pos in self.rooms: continue 
             chest_rooms.append(pos)
         shopkeeper_rooms: list[tuple[int, int]] = []
         while len(shopkeeper_rooms) < SHOPKEEPER_ROOMS:
             pos = (randint(0, MAP_SIZE), randint(0, MAP_SIZE))
             if pos[0] == MAP_SIZE // 2 and pos[1] == MAP_SIZE // 2 or \
-               pos == boss_entry_room or pos in self.rooms or pos in chest_rooms: continue
+               pos == self.boss_entry_room or pos in self.rooms or pos in chest_rooms: continue
             shopkeeper_rooms.append(pos)
 
         for y in range(MAP_SIZE):
@@ -52,7 +52,7 @@ class Map:
                 if y == MAP_SIZE - 1: disable_transitions.append(TransitionDirEnum.RIGHT)
                 if y == 0: disable_transitions.append(TransitionDirEnum.LEFT)
 
-                if (x, y) == boss_entry_room: 
+                if (x, y) == self.boss_entry_room: 
                     self.rooms[-1].append(BossEntryRoom(tilemaps, disable_transitions, knight))
                 elif (x, y) in chest_rooms: 
                     if TransitionDirEnum.UP not in disable_transitions:
@@ -111,6 +111,16 @@ class Map:
     def transition_to_final_hallway(self, knight: "Knight") -> None:
         self.room = FINALHALLWAY
         knight.move_to_force(FINALHALLWAY_POS[0] * TILE_SCALE, FINALHALLWAY_POS[1] * TILE_SCALE)
+
+    def quit_final_hallway(self, knight: "Knight") -> None:
+        self.room = (self.boss_entry_room[1], self.boss_entry_room[0])
+        room = self.get_room()
+        if isinstance(room, BossEntryRoom):
+            pos = room.trapdoor.pos
+        else:
+            pos = room.transition_layer.transition_at_dir(TransitionDirEnum.LEFT).pos \
+                    + pygame.Vector2(1, 0)
+        knight.move_to_force(pos.x * TILE_SCALE, pos.y * TILE_SCALE + TILE_SCALE)
 
     def transition_to_final_boss(self, knight: "Knight") -> None:
         self.room = FINALBOSS

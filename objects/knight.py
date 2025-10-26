@@ -48,6 +48,7 @@ class Knight(Object):
         self.attack_id = 0
         self.to_final_hallway = False
         self.to_final_boss = False
+        self.quit_final_hallway = False
 
         self.size = (96, 96)
         self.spriteSize = (48, 48)
@@ -88,6 +89,11 @@ class Knight(Object):
             self.wait_timer = 5
             map.transition_to_final_boss(self)
             self.to_final_boss = False
+            return
+        elif self.quit_final_hallway:
+            self.wait_timer = 1
+            map.quit_final_hallway(self)
+            self.quit_final_hallway = False
             return
 
         keys = pygame.key.get_pressed()
