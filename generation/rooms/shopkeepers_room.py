@@ -1,17 +1,17 @@
 import pygame
+from random import randint
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from objects.object import Object
-    from objects.enemy import Enemy
     from objects.knight import Knight
 
 from generation.rooms.room import Room, SpriteLayer, Transition, Chest
 from generation.tilemap import Tilemaps
 
-from variables import TileEnum, TransitionDirEnum
+from variables import TileEnum, TransitionDirEnum, TRY_SPAWN_CHESTS
 
-class CombatRoom(Room):
+class ShopkeepersRoom(Room):
     def __init__(self, tilemaps: Tilemaps, disable_transitions: list[TransitionDirEnum], knight: "Knight") -> None:
         super().__init__(tilemaps, disable_transitions, knight)
         
@@ -28,8 +28,8 @@ class CombatRoom(Room):
     def make_layout(self, tilemaps: Tilemaps) -> list[list[list[TileEnum]]]:
         self.sprite_layers = [SpriteLayer(tilemaps.get_map("grass"))]
 
-        self.room = (5, 2, 14, 8)
         layout = self.make_empty_layout()
+        self.room = (3, 1, 16, 9)
 
         for x in range(self.room[0], self.room[2] + 1):
             for y in range(self.room[1], self.room[3] + 1):
@@ -48,16 +48,15 @@ class CombatRoom(Room):
     def make_chests(self, size: int) -> list["Chest"]:
         return []
     
-    def make_objects(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Object"]:
-        from objects.enemy import Slime
-        enemies: list["Object"] = [Slime(pygame.Vector2((400, 400)), knight)]
-        return enemies
+    def make_objects(self, layout0: list[list[TileEnum]], knight: "Knight") -> list["Object"]:  
+        from objects.Shopkeeper import Shopkeeper
+        return [Shopkeeper(pygame.Vector2(500, 300), knight)]
     
     def get_transitions(self, size: int, disable_transitions: list[TransitionDirEnum]) -> list[Transition]:
-        transitions = [Transition(4, 5, TransitionDirEnum.LEFT, size), 
+        transitions = [Transition(3, 5, TransitionDirEnum.LEFT, size), 
                        Transition(10, 1, TransitionDirEnum.UP, size), 
-                       Transition(10, 9, TransitionDirEnum.DOWN, size),
-                       Transition(15, 5, TransitionDirEnum.RIGHT, size)]
+                       Transition(10, 8, TransitionDirEnum.DOWN, size),
+                       Transition(17, 5, TransitionDirEnum.RIGHT, size)]
         i = 0
         while i < len(transitions):
             if transitions[i].dir in disable_transitions: transitions.pop(i)

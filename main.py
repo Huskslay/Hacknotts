@@ -34,10 +34,6 @@ def main():
 
     objects.append(player)
 
-    shopkeeper = Shopkeeper(pygame.Vector2(500, 300))
-    shopkeeper.passPlayerReference(player)
-    objects.append(shopkeeper)
-
     while True:
         delta = clock.tick(FPS)
 
@@ -49,7 +45,7 @@ def main():
         if player.currentHealth > 0:
             display.fill("purple") 
 
-            checks = [obj for obj in objects + generation.map.get_room().enemies if not isinstance(obj, enemy.Enemy) or obj.alive]
+            checks = [obj for obj in objects + generation.map.get_room().objects if not isinstance(obj, enemy.Enemy) or obj.alive]
             
             for object in checks:
                 object.update(delta, generation.map, objects)

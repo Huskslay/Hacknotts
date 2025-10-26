@@ -1,6 +1,6 @@
 import pygame
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from objects.knight import Knight
@@ -33,7 +33,7 @@ class ShopStateEnum(Enum):
 
 class Shopkeeper(Object):
     
-    def __init__(self, pos: pygame.Vector2) -> None:
+    def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None]) -> None:
         super().__init__()
         
         self.spritesheet = pygame.image.load("Assets\\ShopSprites\\Shopkeeper.png").convert_alpha()
@@ -57,7 +57,10 @@ class Shopkeeper(Object):
         self.sprite = self.animationListIdle[self.currentFrame]
         self.rect = self.sprite.get_rect(topleft=pos)
         self.hitbox = pygame.Rect(self.rect.x, self.rect.y + self.scaledHeight / 2, self.scaledWidth * SPRITEHITBOXOFFSET, self.scaledHeight / 2)
-    
+        
+        if knight is not None: self.passPlayerReference(knight)
+
+
     def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
 

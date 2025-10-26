@@ -116,9 +116,10 @@ class Knight(Object):
             self.spawnedAttackHitboxInCurrentAttack = True
             self.setAttackHitbox()
         if self.attackHitboxRect != None:
-            for object in map.get_room().enemies:
-                if self.attackHitboxRect.colliderect(object.hitbox):
-                    object.onHit()
+            for object in map.get_room().objects:
+                if isinstance(object, Enemy):
+                    if self.attackHitboxRect.colliderect(object.hitbox):
+                        object.onHit()
 
     def setAttackHitbox(self) -> None:
         playerRect = pygame.Rect(self.pos.x + 32, self.pos.y + 32, self.size[0] /3, self.size[1] /3)

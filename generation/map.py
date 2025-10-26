@@ -8,9 +8,10 @@ if TYPE_CHECKING:
 from generation.rooms.start_room import Room, StartRoom
 from generation.rooms.combat_room import CombatRoom
 from generation.rooms.chest_room import ChestRoom
+from generation.rooms.shopkeepers_room import ShopkeepersRoom
 from generation.tilemap import Tilemaps
 
-from variables import ROOM_SIZE, TransitionDirEnum, TILE_SCALE, CHEST_ROOMS
+from variables import ROOM_SIZE, TransitionDirEnum, TILE_SCALE, CHEST_ROOMS, SHOPKEEPER_ROOMS
 
 class Map:
     def __init__(self, tilemaps: Tilemaps, knight: "Knight") -> None:  
@@ -22,7 +23,12 @@ class Map:
             if pos[0] == ROOM_SIZE[1] // 2 and pos[1] == ROOM_SIZE[0] // 2 or \
                 pos in self.rooms: continue 
             chest_rooms.append(pos)
-
+        shopkeeper_rooms: list[tuple[int, int]] = []
+        while len(shopkeeper_rooms) < SHOPKEEPER_ROOMS:
+            pos = (randint(0, ROOM_SIZE[0]), randint(0, ROOM_SIZE[1]))
+            if pos[0] == ROOM_SIZE[1] // 2 and pos[1] == ROOM_SIZE[0] // 2 or \
+               pos in self.rooms or pos in chest_rooms: continue
+            shopkeeper_rooms.append(pos)
 
         for y in range(ROOM_SIZE[1]):
             self.rooms.append([])
@@ -34,9 +40,13 @@ class Map:
                 if y == 0: disable_transitions.append(TransitionDirEnum.LEFT)
 
                 if (x, y) in chest_rooms: 
-                    # if TransitionDirEnum.UP not in disable_transitions:
-                    #     disable_transitions.append(TransitionDirEnum.UP)
+                    if TransitionDirEnum.UP not in disable_transitions:
+                        disable_transitions.append(TransitionDirEnum.UP)
                     self.rooms[-1].append(ChestRoom(tilemaps, disable_transitions, knight))
+                elif (x, y) in shopkeeper_rooms: 
+                    if TransitionDirEnum.DOWN not in disable_transitions:
+                        disable_transitions.append(TransitionDirEnum.DOWN)
+                    self.rooms[-1].append(ShopkeepersRoom(tilemaps, disable_transitions, knight))
                 else: self.rooms[-1].append(CombatRoom(tilemaps, disable_transitions, knight))
 
         self.rooms[ROOM_SIZE[1] // 2][ROOM_SIZE[0] // 2] = StartRoom(tilemaps, [], knight)

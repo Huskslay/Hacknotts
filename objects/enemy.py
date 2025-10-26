@@ -1,6 +1,6 @@
 import pygame
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from objects.knight import Knight
@@ -29,7 +29,7 @@ class DirectionEnum(Enum):
     RIGHT = 4
 
 class Enemy(Object):
-    def __init__(self, pos: pygame.Vector2) -> None:
+    def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None] = None) -> None:
         super().__init__()
         self.deltaTotal = 0
         self.alive = True
@@ -43,6 +43,7 @@ class Enemy(Object):
         self.pos = pos
         self.spritesheet = None
         self.commitedToAttack = False
+        if knight is not None: self.passPlayerReference(knight)
     
     def passPlayerReference(self, player: "Knight") -> None:
         self.player = player
@@ -117,8 +118,8 @@ XSPRITES = 4
 YSPRITES = 8
 
 class Slime(Enemy):
-    def __init__(self, pos: pygame.Vector2) -> None:
-        super().__init__(pos)
+    def __init__(self, pos: pygame.Vector2, knight: Union["Knight", None] = None) -> None:
+        super().__init__(pos, knight)
         self.spriteSize = (16, 16)
         self.size = (32, 32)
         self.hitboxSize = (30, 30)
